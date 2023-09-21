@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <!-- Colonne de date -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="date-box text-dark text-center">
+                <h3>Aujourd'hui</h3>
+                <p>{% now "l, d F Y" %}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Liste des trajets -->
+    {% for trajet in trajets %}
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Trajet de {{ trajet.lieu_depart }} à {{ trajet.lieu_arrivee }}</h5>
+                    <p class="card-text">Date de départ : {{ trajet.date_depart }}</p>
+                    <p class="card-text">Date d'arrivée : {{ trajet.date_arrivee }}</p>
+                </div>
+                <div class="card-footer">
+                    <a href="" class="btn btn-primary">Continuer</a>
+                    <p class="float-right">Prix : {{ trajet.prix }} DA</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

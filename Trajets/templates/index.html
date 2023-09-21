@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Accueil - EasyBus{% endblock %}
+
+{% block content %}
+
+<!-- Hero Section -->
+<section class="hero text-white text-center py-5 bg-info" style="position: relative;">
+    <div class="container">
+        <h1 class="display-4">Réservez votre trajet en bus</h1>
+        <p class="lead">Voyagez en toute sécurité et confort avec EasyBus.</p>
+    </div>
+    <div class="background-image" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-image: url('{% static 'trajets/images/bus.jpg' %}'); background-size: cover; z-index: -1;"></div>
+</section>
+
+<!-- Formulaire sous forme de carte avec personnalisation -->
+<section class="container mt-5 " style="position: relative; z-index: 1;" >
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h2 class="text-center">Choisissez votre trajet</h2>
+                    <form method="post" action="{% url 'rechercher_trajets' %}">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label class="d-block">Types de voyage</label>
+                            <div class="form-check form-check-inline">
+                                <input type="checkbox" class="form-check-input" id="allerSimple" name="tripType" value="allerSimple">
+                                <label class="form-check-label" for="allerSimple">Aller Simple</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input type="checkbox" class="form-check-input" id="allerRetour" name="tripType" value="allerRetour">
+                                <label class="form-check-label" for="allerRetour">Aller-Retour</label>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="departureDate">Date d'aller</label>
+                                    <input type="date" class="form-control" id="departureDate" name="departureDate">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="arrivalDate">Date d'arrivée</label>
+                                    <input type="date" class="form-control" id="arrivalDate" name="arrivalDate">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="departure">Lieu de départ</label>
+                                    <select class="form-control" id="departure" name="departure">
+                                        <option value="Alger">Alger</option>
+                                        <option value="Oran">Oran</option>
+                                        <option value="Constantine">Constantine</option>
+                                        <!-- Ajoutez d'autres options ici -->
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="arrival">Lieu d'arrivée</label>
+                                    <select class="form-control" id="arrival" name="arrival">
+                                        <option value="Oran">Oran</option>
+                                        <option value="Constantine">Constantine</option>
+                                        <option value="Annaba">Annaba</option>
+                                        <!-- Ajoutez d'autres options ici -->
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group text-center">
+                            <label for="passengers">Nombre de passagers</label>
+                            <input type="number" class="form-control" id="passengers" name="passengers" min="1" value="1">
+                        </div>
+                        <div class="text-center">
+                            <button type="submit" class="btn btn-info btn-lg">Rechercher</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Main Content -->
+<main class="container mt-5">
+    <!-- Votre contenu ici -->
+</main>
+
+{% endblock %}
