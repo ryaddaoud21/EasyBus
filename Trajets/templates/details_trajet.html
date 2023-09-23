@@ -1,0 +1,123 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <!-- Colonne de gauche pour les informations du passager, les sièges et la méthode de paiement -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Informations du passager</h5>
+                    <form>
+                        <div class="form-row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="nom">Nom</label>
+                                    <input type="text" class="form-control" id="nom" name="nom" placeholder="Nom">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="prenom">Prénom</label>
+                                    <input type="text" class="form-control" id="prenom" name="prenom" placeholder="Prénom">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input type="email" class="form-control" id="email" name="email" placeholder="Email">
+                        </div>
+                        <div class="form-group">
+                            <label for="telephone">Téléphone</label>
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text">+33</span> <!-- Indicateur de pays -->
+                                </div>
+                                <input type="text" class="form-control" id="telephone" name="telephone" placeholder="Numéro de téléphone">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="card-footer">
+                    <h5 class="card-title">Choix du siège</h5>
+                    <form>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="" id="choixSiege">
+                            <label class="form-check-label" for="choixSiege">
+                                Choisir un siège
+                            </label>
+
+                        </div>
+                    </form>
+                </div>
+<div class="card-footer">
+            <h5 class="card-title">Méthode de paiement</h5>
+    <br>
+            <form>
+                <!-- Méthode de paiement par carte de crédit -->
+                <div class="form-check mb-4">
+                    <input class="form-check-input" type="radio" name="methodePaiement" id="carteCredit" value="carteCredit">
+                    <label class="form-check-label d-flex align-items-center" for="carteCredit">
+                        <img src="{% static 'Trajets/images/carte_credit_logo.png' %}" alt="Carte de crédit" class="mr-2" width="40">
+                        Carte de crédit
+                    </label>
+                </div>
+
+                <!-- Méthode de paiement Google Pay -->
+                <div class="form-check mb-4">
+                    <input class="form-check-input" type="radio" name="methodePaiement" id="googlePay" value="googlePay">
+                    <label class="form-check-label d-flex align-items-center" for="googlePay">
+                        <img src="{% static 'Trajets/images/google_pay_logo.png' %}" alt="Google Pay" class="mr-2" width="31">
+                        Google Pay
+                    </label>
+                </div>
+
+                <!-- Méthode de paiement PayPal -->
+                <div class="form-check mb-3">
+                    <input class="form-check-input" type="radio" name="methodePaiement" id="paypal" value="paypal">
+                    <label class="form-check-label d-flex align-items-center" for="paypal">
+                        <img src="{% static 'Trajets/images/paypal_logo.png' %}" alt="PayPal" class="mr-2" width="40">
+                        PayPal
+                    </label>
+                </div>
+            </form>
+        </div>            </div>
+        </div>
+
+        <!-- Colonne de droite pour la carte de l'itinéraire -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title">Détails du trajet</h5>
+                    <p>Trajet de <b> {{ trajet.lieu_depart }} </b>  à  <b> {{ trajet.lieu_arrivee }} </b> </p>
+                    <p>Date de départ : {{ trajet.date_depart }}</p>
+                    <p>Date d'arrivée : {{ trajet.date_arrivee }}</p>
+                    <p> <b> Prix : {{ trajet.prix }} DA</b></p>
+                    <!-- Ajoutez ici un bouton pour passer au paiement -->
+                </div>
+                <div class="card-footer text-center">
+                    <button type="button" class="btn btn-primary">Passer au paiement</button>
+                </div>
+                <div class="card-body">
+                    <!-- Ajoutez ici les informations spécifiques au trajet telles que la ville de départ, la ville d'arrivée, les dates, etc. -->
+                </div>
+                <div class="card-footer">
+                    <h5 class="card-title">Carte de l'itinéraire</h5>
+                    <div id="carteItineraire" style="height: 300px;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+<script>
+    // Vous pouvez utiliser ici JavaScript pour afficher la carte de l'itinéraire en utilisant une bibliothèque telle que Google Maps.
+</script>
+<style>
+    .custom-checkbox .custom-control-input:checked ~ .custom-control-label::before {
+    width: 6.5rem; /* Largeur souhaitée */
+    height: 6.5rem; /* Hauteur souhaitée */
+}
+</style>
+{% endblock %}

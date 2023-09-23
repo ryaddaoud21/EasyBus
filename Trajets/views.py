@@ -2,36 +2,43 @@ from django.shortcuts import render,redirect,reverse
 from .models import Trajet
 
 # Create your views here.
-from django.shortcuts import render
-
+from django.shortcuts import render,get_object_or_404
+from .models import VILLES_CHOICES
+from .forms import *
 def index(request):
-    if request.method == 'POST':
-        lieu_depart = request.POST.get('departure')
-        lieu_arrivee = request.POST.get('arrival')
-        date_depart = request.POST.get('departureDate')
-        date_arrivee = request.POST.get('arrivalDate')
-        nombre_passagers = request.POST.get('passengers')
+    trajets = Trajet.objects.all()
+    trajet_filter = ChercherTrajet(request.GET)
 
-        # Vous pouvez maintenant effectuer une recherche de trajets en utilisant les données saisies
-        # par l'utilisateur. Par exemple :
-        trajets = Trajet.objects.filter(ville_depart=lieu_depart, ville_arrivee=lieu_arrivee,
-                                        date_depart=date_depart, date_arrivee=date_arrivee)
+    if trajet_filter.is_valid():
+        date_depart = trajet_filter.cleaned_data.get('departureDate')
+        ville_depart = trajet_filter.cleaned_data.get('departureCity')
+        ville_arrivee = trajet_filter.cleaned_data.get('arrivalCity')
 
-        # Vérifiez si des trajets ont été trouvés
-        if trajets.exists():
-            # Si des trajets ont été trouvés, envoyez-les à un modèle pour les afficher
-            return render(request, 'resultats_trajets.html', {'trajets': trajets})
-        else:
-            # Si aucun trajet n'a été trouvé, redirigez vers une page indiquant qu'il n'y a pas de trajet pour cette date
-            return render(request, 'pas_de_trajet.html')
+        if date_depart:
+            trajets = trajets.filter(date_depart=date_depart)
 
-    return render(request, 'index.html')
+        if ville_depart:
+            trajets = trajets.filter(lieu_depart=ville_depart)
+
+        if ville_arrivee:
+            trajets = trajets.filter(lieu_arrivee=ville_arrivee)
+
+    context = {'trajets_index': trajets, 'trajet_filter': trajet_filter}
+    return render(request, 'index.html', context)
 
 
 def trajets(request):
+    trajets = Trajet.objects.all()
+    trajet_filter = TrajetFilterForm(request.GET)
 
-    trajets = Trajet.objects.all()  # Utilisez 'objects' au lieu de 'objetcs'
-    context = {'trajets': trajets}
+    if trajet_filter.is_valid():
+        date_min = trajet_filter.cleaned_data.get('date_min')
+
+        if date_min:
+            trajets = trajets.filter(date_depart__gte=date_min)
+
+
+    context = {'trajets': trajets, 'trajet_filter': trajet_filter}
     return render(request, 'trajet.html', context)
 
 
@@ -41,3 +48,19 @@ def rechercher_trajets(request):
     context = {'trajets': trajets}
 
     return render(request, 'resultats_trajets.html', context)
+
+def rechercher_trajets_index(request):
+
+    trajets = Trajet.objects.all()  # Utilisez 'objects' au lieu de 'objetcs'
+    context = {'trajets': trajets}
+
+    return render(request, 'resultats_trajets_index.html', context)
+
+
+
+def details_trajet(request, trajet_id):
+    trajet = get_object_or_404(Trajet, pk=trajet_id)
+
+    # Vous pouvez également gérer le formulaire de réservation ici
+
+    return render(request, 'details_trajet.html', {'trajet': trajet})

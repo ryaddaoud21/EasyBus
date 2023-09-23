@@ -20,16 +20,25 @@
             <div class="card">
                 <div class="card-body">
                     <h2 class="text-center">Choisissez votre trajet</h2>
+                    <form method="get" action="{% url 'rechercher_trajets_index' %}">
+                        {{ trajet_filter.departureDate.label_tag }} {{ trajet_filter.departureDate }}
+                        {{ trajet_filter.departureCity.label_tag }} {{ trajet_filter.departureCity }}
+                        {{ trajet_filter.arrivalCity.label_tag }} {{ trajet_filter.arrivalCity }}
+                        <button type="submit" class="btn btn-info btn-lg">Filtrer</button>
+                    </form>
+
+
+                    {% comment %}
                     <form method="post" action="{% url 'rechercher_trajets' %}">
                         {% csrf_token %}
                         <div class="form-group">
-                            <label class="d-block">Types de voyage</label>
+                            <label class="d-block">Type de voyage</label>
                             <div class="form-check form-check-inline">
-                                <input type="checkbox" class="form-check-input" id="allerSimple" name="tripType" value="allerSimple">
+                                <input type="radio" class="form-check-input" id="allerSimple" name="tripType"  checked value="allerSimple">
                                 <label class="form-check-label" for="allerSimple">Aller Simple</label>
                             </div>
                             <div class="form-check form-check-inline">
-                                <input type="checkbox" class="form-check-input" id="allerRetour" name="tripType" value="allerRetour">
+                                <input type="radio" class="form-check-input" id="allerRetour" name="tripType" value="allerRetour">
                                 <label class="form-check-label" for="allerRetour">Aller-Retour</label>
                             </div>
                         </div>
@@ -42,43 +51,41 @@
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label for="arrivalDate">Date d'arrivée</label>
-                                    <input type="date" class="form-control" id="arrivalDate" name="arrivalDate">
+                                    <label for="returnDate">Date de retour</label>
+                                    <input type="date" class="form-control" id="returnDate" name="returnDate" disabled>
                                 </div>
                             </div>
                         </div>
+
                         <div class="form-row">
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label for="departure">Lieu de départ</label>
-                                    <select class="form-control" id="departure" name="departure">
-                                        <option value="Alger">Alger</option>
-                                        <option value="Oran">Oran</option>
-                                        <option value="Constantine">Constantine</option>
-                                        <!-- Ajoutez d'autres options ici -->
+                                    <label for="departureCity">Ville de départ</label>
+                                    <select class="form-control" id="departureCity" name="departureCity" >
+                                        {% for city, city_name in VILLES_CHOICES %}
+                                            <option value="{{ city }}">{{ city_name }}</option>
+                                        {% endfor %}
                                     </select>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label for="arrival">Lieu d'arrivée</label>
-                                    <select class="form-control" id="arrival" name="arrival">
-                                        <option value="Oran">Oran</option>
-                                        <option value="Constantine">Constantine</option>
-                                        <option value="Annaba">Annaba</option>
-                                        <!-- Ajoutez d'autres options ici -->
+                                    <label for="arrivalCity">Ville d'arrivée</label>
+                                    <select class="form-control" id="arrivalCity" name="arrivalCity" >
+                                        {% for city, city_name in VILLES_CHOICES %}
+                                            <option value="{{ city }}">{{ city_name }}</option>
+                                        {% endfor %}
                                     </select>
                                 </div>
                             </div>
                         </div>
-                        <div class="form-group text-center">
-                            <label for="passengers">Nombre de passagers</label>
-                            <input type="number" class="form-control" id="passengers" name="passengers" min="1" value="1">
-                        </div>
+
+                        <!-- Reste du formulaire... -->
                         <div class="text-center">
                             <button type="submit" class="btn btn-info btn-lg">Rechercher</button>
                         </div>
                     </form>
+                    {% endcomment %}
                 </div>
             </div>
         </div>
@@ -89,5 +96,79 @@
 <main class="container mt-5">
     <!-- Votre contenu ici -->
 </main>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const allerSimpleRadio = document.getElementById('allerSimple');
+        const allerRetourRadio = document.getElementById('allerRetour');
+        const returnDateInput = document.getElementById('returnDate');
+        const departureCitySelect = document.getElementById('departureCity');
+        const arrivalCitySelect = document.getElementById('arrivalCity');
+
+        // Ajoutez un écouteur d'événements au changement de la ville de départ
+        departureCitySelect.addEventListener('change', function () {
+            // Récupérez la valeur sélectionnée de la ville de départ
+            const selectedDepartureCity = departureCitySelect.value;
+
+            // Parcourez toutes les options de la ville d'arrivée
+            for (const option of arrivalCitySelect.options) {
+                // Si l'option correspond à la ville de départ, désactivez-la
+                if (option.value === selectedDepartureCity) {
+                    option.disabled = true;
+                } else {
+                    option.disabled = false;
+                }
+            }
+        });
+
+        // Fonction pour activer ou désactiver le champ de date de retour
+        function toggleReturnDateField() {
+            returnDateInput.disabled = !allerRetourRadio.checked;
+        }
+
+        // Écouteurs d'événements pour détecter les changements dans les boutons radio
+        allerSimpleRadio.addEventListener('change', toggleReturnDateField);
+        allerRetourRadio.addEventListener('change', toggleReturnDateField);
+
+        // Appel initial pour configurer l'état du champ de date de retour
+        toggleReturnDateField();
+
+        // Ajoutez un écouteur d'événements au changement de la date de départ
+        departureDateInput.addEventListener('change', function () {
+            // Récupérez la date de départ sélectionnée
+            const departureDate = new Date(departureDateInput.value);
+
+            // Si la date de retour est antérieure à la date de départ, réinitialisez-la
+            if (returnDateInput.value) {
+                const returnDate = new Date(returnDateInput.value);
+                if (returnDate <= departureDate) {
+                    returnDateInput.value = '';
+                }
+            }
+
+            // Définissez la limite minimale de la date de retour comme étant la date de départ
+            returnDateInput.min = departureDateInput.value;
+        });
+
+        // Ajoutez un écouteur d'événements au changement de la date de retour
+        returnDateInput.addEventListener('change', function () {
+            // Récupérez la date de départ et la date de retour sélectionnées
+            const departureDate = new Date(departureDateInput.value);
+            const returnDate = new Date(returnDateInput.value);
+
+            // Si la date de retour est antérieure à la date de départ, réinitialisez-la
+            if (returnDate <= departureDate) {
+                returnDateInput.value = '';
+            }
+        });
+    });
+</script>
+
+
+
+
+
+
+
 
 {% endblock %}

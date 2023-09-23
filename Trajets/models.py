@@ -5,6 +5,19 @@ from django.db import models
 
 from django.db import models
 
+VILLES_CHOICES = [
+    ('Alger', 'Alger'),
+    ('Oran', 'Oran'),
+    ('Constantine', 'Constantine'),
+    ('Annaba', 'Annaba'),
+    ('Tlemcen', 'Tlemcen'),
+    ('Tizi Ouzou', 'Tizi Ouzou'),
+    ('Béjaïa', 'Béjaïa'),
+    ('Blida', 'Blida'),
+    ('Sétif', 'Sétif'),
+    ('Biskra', 'Biskra'),
+]
+
 class Trajet(models.Model):
         VILLES_CHOICES = [
             ('Alger', 'Alger'),
@@ -29,6 +42,18 @@ class Trajet(models.Model):
 
         def __str__(self):
             return f"{self.lieu_depart} - {self.lieu_arrivee}"
+
+        @property
+        def duree_trajet(self):
+            # Calcul de la durée en soustrayant date_depart de date_arrivee
+            duree = self.date_arrivee - self.date_depart
+
+            # La durée est maintenant stockée dans un objet timedelta
+            # Vous pouvez extraire les jours, les heures, les minutes, etc. si nécessaire
+            return duree
+
+        def __str__(self):
+            return f"Trajet de {self.lieu_depart} à {self.lieu_arrivee}"
 
 class Reservation(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)  # Liaison avec le modèle User

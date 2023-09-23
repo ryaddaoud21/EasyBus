@@ -63,3 +63,9 @@ main {
     border-radius: 5px;
     margin-top: 20px;
 }
+
+.bottom-right {
+    position: absolute;
+    bottom: 10px; /* Ajustez la valeur en fonction de la position verticale souhaitée */
+    right: 10px; /* Ajustez la valeur en fonction de la position horizontale souhaitée */
+}

@@ -12,9 +12,9 @@
     </div>
 
     <!-- Liste des trajets -->
-    {% if resultats_trajets or trajets %}
+    {% if trajets_index %}
 
-    {% for trajet in resultats_trajets %}
+    {% for trajet in trajets_index %}
     <div class="row mb-4">
         <div class="col-md-12">
             <div class="card">
@@ -32,23 +32,6 @@
     </div>
     {% endfor %}
 
-    {% for trajet in trajets %}
-    <div class="row mb-4">
-        <div class="col-md-12">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">Trajet de {{ trajet.lieu_depart }} à {{ trajet.lieu_arrivee }}</h5>
-                    <p class="card-text">Date de départ : {{ trajet.date_depart }}</p>
-                    <p class="card-text">Date d'arrivée : {{ trajet.date_arrivee }}</p>
-                </div>
-                <div class="card-footer">
-                    <a href="" class="btn btn-primary">Continuer</a>
-                    <p class="float-right">Prix : {{ trajet.prix }} DA</p>
-                </div>
-            </div>
-        </div>
-    </div>
-    {% endfor %}
     {% else  %}
     <div class="text-center">
         <p style="font-weight: bold;">Oups! Aucun trajet disponible pour cette date de recherche.</p>
