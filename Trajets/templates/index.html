@@ -20,74 +20,118 @@
             <div class="card">
                 <div class="card-body">
                     <h2 class="text-center">Choisissez votre trajet</h2>
-                    <form method="get" action="{% url 'rechercher_trajets_index' %}">
-                        {{ trajet_filter.departureDate.label_tag }} {{ trajet_filter.departureDate }}
-                        {{ trajet_filter.departureCity.label_tag }} {{ trajet_filter.departureCity }}
-                        {{ trajet_filter.arrivalCity.label_tag }} {{ trajet_filter.arrivalCity }}
-                        <button type="submit" class="btn btn-info btn-lg">Filtrer</button>
-                    </form>
 
 
-                    {% comment %}
-                    <form method="post" action="{% url 'rechercher_trajets' %}">
-                        {% csrf_token %}
-                        <div class="form-group">
-                            <label class="d-block">Type de voyage</label>
-                            <div class="form-check form-check-inline">
-                                <input type="radio" class="form-check-input" id="allerSimple" name="tripType"  checked value="allerSimple">
-                                <label class="form-check-label" for="allerSimple">Aller Simple</label>
-                            </div>
-                            <div class="form-check form-check-inline">
-                                <input type="radio" class="form-check-input" id="allerRetour" name="tripType" value="allerRetour">
-                                <label class="form-check-label" for="allerRetour">Aller-Retour</label>
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="departureDate">Date d'aller</label>
-                                    <input type="date" class="form-control" id="departureDate" name="departureDate">
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="returnDate">Date de retour</label>
-                                    <input type="date" class="form-control" id="returnDate" name="returnDate" disabled>
-                                </div>
-                            </div>
-                        </div>
 
-                        <div class="form-row">
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="departureCity">Ville de départ</label>
-                                    <select class="form-control" id="departureCity" name="departureCity" >
-                                        {% for city, city_name in VILLES_CHOICES %}
-                                            <option value="{{ city }}">{{ city_name }}</option>
-                                        {% endfor %}
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="arrivalCity">Ville d'arrivée</label>
-                                    <select class="form-control" id="arrivalCity" name="arrivalCity" >
-                                        {% for city, city_name in VILLES_CHOICES %}
-                                            <option value="{{ city }}">{{ city_name }}</option>
-                                        {% endfor %}
-                                    </select>
-                                </div>
+                   <form method="get" name="ChercherTrajet" action="{% url 'index' %}">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label class="d-block">Type de voyage</label>
+                        <div class="form-check form-check-inline">
+                            <input type="radio" class="form-check-input" id="allerSimple" name="tripType" value="allerSimple">
+                            <label class="form-check-label" for="allerSimple">Aller Simple</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input type="radio" class="form-check-input" id="allerRetour" name="tripType" value="allerRetour">
+                            <label class="form-check-label" for="allerRetour">Aller-Retour</label>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="departureDate">Date d'aller</label>
+                                <input type="date" class="form-control" id="departureDate" name="departureDate">
                             </div>
                         </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="returnDate">Date de retour</label>
+                                <input type="date" class="form-control" id="returnDate" name="returnDate" disabled>
+                            </div>
+                        </div>
+                    </div>
 
-                        <!-- Reste du formulaire... -->
-                        <div class="text-center">
-                            <button type="submit" class="btn btn-info btn-lg">Rechercher</button>
+                    <div class="form-row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="departureCity">Ville de départ</label>
+                                <select class="form-control" id="departureCity" name="departureCity">
+                                    {% for city, city_name in VILLES_CHOICES %}
+                                        <option value="{{ city }}">{{ city_name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
                         </div>
-                    </form>
-                    {% endcomment %}
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="arrivalCity">Ville d'arrivée</label>
+                                <select class="form-control" id="arrivalCity" name="arrivalCity">
+                                    {% for city, city_name in VILLES_CHOICES %}
+                                        <option value="{{ city }}">{{ city_name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                     <!-- Champ pour le nombre de passagers -->
+                    <div class="form-group">
+                        <label for="passengers">Nombre de passagers</label>
+                        <input type="number" class="form-control" id="passengers" name="passengers" min="1" value="1">
+                    </div>
+                    <!-- Reste du formulaire... -->
+                    <div class="text-center">
+                        <button type="submit" class="btn btn-info btn-lg">Rechercher</button>
+                    </div>
+                </form>
+
+
                 </div>
             </div>
+        </div>
+        <div class="col-md-6">
+         <!-- Liste des trajets -->
+            {% if trajets %}
+
+            {% for trajet in trajets %}
+            <div class="row mb-4">
+                <div class="col-md-12">
+<div class="card">
+            <div class="card-header">
+                <div class="float-left">
+                     <i class="fas fa-wifi"></i> <!-- Icône Wi-Fi -->
+                    <i class="fas fa-bus"></i> <!-- Icône Bus -->
+                    <i class="fas fa-charging-station"></i> <!-- Icône Chargeur -->
+                </div>
+                <div class="float-right">
+                    <b>Prix : {{ trajet.prix }} DA</b>
+                </div>
+                <div class="clearfix"></div>
+            </div>
+            <div class="card-body">
+                <div class="float-left">
+                    <h5 class="card-title">Trajet de {{ trajet.lieu_depart }} à {{ trajet.lieu_arrivee }}</h5>
+                    <p class="card-text">Date de départ : {{ trajet.date_depart }}</p>
+                    <p class="card-text">Date d'arrivée : {{ trajet.date_arrivee }}</p>
+                    <p class="card-text">Durée de trajet : <b>{{ trajet.duree_formattee }}</b></p>
+
+
+                </div>
+                <div class="float-right bottom-right">
+                    <a  href="{% url 'details_trajet' trajet.id %}" class="btn btn-info">Continuer</a>
+                </div>
+
+            </div>
+
+        </div>                </div>
+            </div>
+            {% endfor %}
+
+            {% else  %}
+            <div class="text-center">
+                <p style="font-weight: bold;">Oups! Aucun trajet disponible pour cette date de recherche.</p>
+                <a href="{% url 'index' %}" class="btn btn-info">Retour à la page de recherche</a>
+            </div>
+            {% endif %}
         </div>
     </div>
 </section>

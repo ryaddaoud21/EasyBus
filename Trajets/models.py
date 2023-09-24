@@ -52,6 +52,14 @@ class Trajet(models.Model):
             # Vous pouvez extraire les jours, les heures, les minutes, etc. si nécessaire
             return duree
 
+        def duree_minutes(self):
+            return int(self.duree_trajet.total_seconds() / 60)
+
+        def duree_formattee(self):
+            heures, minutes = divmod(self.duree_minutes(), 60)
+            return f"{heures:02d}H:{minutes:02d}min"
+
+
         def __str__(self):
             return f"Trajet de {self.lieu_depart} à {self.lieu_arrivee}"
 

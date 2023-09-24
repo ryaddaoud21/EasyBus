@@ -1,0 +1,120 @@
+{% extends 'base.html' %}
+{% block title %}Accueil - EasyBus{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+     integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+     crossorigin=""/>
+
+ <!-- Make sure you put this AFTER Leaflet's CSS -->
+ <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+     integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+     crossorigin=""></script>
+<!-- Hero Section -->
+<section class="hero text-white text-center py-5 bg-info" style="position: relative;">
+    <div class="container">
+        <h1 class="display-4">Réservez votre trajet en bus</h1>
+        <p class="lead">Voyagez en toute sécurité et confort avec EasyBus.</p>
+    </div>
+</section>
+
+<!-- Formulaire sous forme de carte avec personnalisation -->
+<section class="container mt-5 " style="position: relative; z-index: 1;" >
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                {{ my_map|safe }}
+
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Main Content -->
+<main class="container mt-5">
+    <!-- Votre contenu ici -->
+</main>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const allerSimpleRadio = document.getElementById('allerSimple');
+        const allerRetourRadio = document.getElementById('allerRetour');
+        const returnDateInput = document.getElementById('returnDate');
+        const departureCitySelect = document.getElementById('departureCity');
+        const arrivalCitySelect = document.getElementById('arrivalCity');
+
+        // Ajoutez un écouteur d'événements au changement de la ville de départ
+        departureCitySelect.addEventListener('change', function () {
+            // Récupérez la valeur sélectionnée de la ville de départ
+            const selectedDepartureCity = departureCitySelect.value;
+
+            // Parcourez toutes les options de la ville d'arrivée
+            for (const option of arrivalCitySelect.options) {
+                // Si l'option correspond à la ville de départ, désactivez-la
+                if (option.value === selectedDepartureCity) {
+                    option.disabled = true;
+                } else {
+                    option.disabled = false;
+                }
+            }
+        });
+
+        // Fonction pour activer ou désactiver le champ de date de retour
+        function toggleReturnDateField() {
+            returnDateInput.disabled = !allerRetourRadio.checked;
+        }
+
+        // Écouteurs d'événements pour détecter les changements dans les boutons radio
+        allerSimpleRadio.addEventListener('change', toggleReturnDateField);
+        allerRetourRadio.addEventListener('change', toggleReturnDateField);
+
+        // Appel initial pour configurer l'état du champ de date de retour
+        toggleReturnDateField();
+
+        // Ajoutez un écouteur d'événements au changement de la date de départ
+        departureDateInput.addEventListener('change', function () {
+            // Récupérez la date de départ sélectionnée
+            const departureDate = new Date(departureDateInput.value);
+
+            // Si la date de retour est antérieure à la date de départ, réinitialisez-la
+            if (returnDateInput.value) {
+                const returnDate = new Date(returnDateInput.value);
+                if (returnDate <= departureDate) {
+                    returnDateInput.value = '';
+                }
+            }
+
+            // Définissez la limite minimale de la date de retour comme étant la date de départ
+            returnDateInput.min = departureDateInput.value;
+        });
+
+        // Ajoutez un écouteur d'événements au changement de la date de retour
+        returnDateInput.addEventListener('change', function () {
+            // Récupérez la date de départ et la date de retour sélectionnées
+            const departureDate = new Date(departureDateInput.value);
+            const returnDate = new Date(returnDateInput.value);
+
+            // Si la date de retour est antérieure à la date de départ, réinitialisez-la
+            if (returnDate <= departureDate) {
+                returnDateInput.value = '';
+            }
+        });
+
+        var map = L.map('map').setView([51.505, -0.09], 13);
+        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+        }).addTo(map);
+    });
+</script>
+
+
+
+
+
+
+
+
+{% endblock %}

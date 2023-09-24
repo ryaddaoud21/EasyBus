@@ -69,3 +69,15 @@ main {
     bottom: 10px; /* Ajustez la valeur en fonction de la position verticale souhaitée */
     right: 10px; /* Ajustez la valeur en fonction de la position horizontale souhaitée */
 }
+
+
+/* Dans votre fichier CSS */
+.footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: #fff; /* Vous pouvez personnaliser la couleur d'arrière-plan */
+    padding: 10px; /* Ajustez la valeur de rembourrage selon vos besoins */
+    z-index: 100; /* Assurez-vous que le pied de page est au-dessus du contenu */
+}

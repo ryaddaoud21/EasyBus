@@ -1,14 +1,6 @@
 from django import forms
 from .models import VILLES_CHOICES
 
-class TrajetForm(forms.Form):
-    TRIP_CHOICES = [('allerSimple', 'Aller Simple'), ('allerRetour', 'Aller-Retour')]
-
-    trip_type = forms.ChoiceField(choices=TRIP_CHOICES, widget=forms.RadioSelect)
-    departure_date = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}))
-    return_date = forms.DateField(widget=forms.DateInput(attrs={'type': 'date', 'disabled': 'disabled'}))
-    # Autres champs de formulaire, par exemple, les lieux de départ et d'arrivée, le nombre de passagers, etc.
-
 
 class ChercherTrajet(forms.Form):
 
