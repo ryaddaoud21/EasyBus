@@ -9,6 +9,7 @@
             <div class="card">
                 <div class="card-body">
                     <h5 class="card-title">Informations du passager</h5>
+
                     <form>
                         <div class="form-row">
                             <div class="col-md-6">
@@ -98,6 +99,9 @@
             <div class="card">
                    <div class="card-header">
                     <h5 class="card-title">Détails du trajet</h5>
+                    <div class="chrono">
+                        <b><span id="chrono"></span> </b>
+                    </div>
                     <hr class="vertical-line">
 
                     <p><i class="fas fa-map-marker-alt align-middle" style=" margin-top: -5px;"></i> <b>{{ trajet.lieu_depart }}</b> : Date de départ : {{ trajet.date_depart }}</p>
@@ -168,6 +172,52 @@
 
         // Ajustez la vue pour afficher les deux marqueurs
         map.fitBounds([[latitudeDepart,longitudeDepart], [latitudeArrivee,longitudeArrivee]]);
+
+
+        // Fonction pour rediriger vers la page d'accueil après 2 minutes
+        function redirectToHomePage() {
+            window.location.href = "{% url 'index' %}"; // Remplacez 'accueil' par l'URL réelle de votre page d'accueil
+        }
+
+        // Démarrez la minuterie de 2 minutes lors du chargement de la page
+        var timer = setTimeout(redirectToHomePage, 120000); // 120000 millisecondes = 2 minutes
+
+        // Réinitialisez la minuterie si l'utilisateur interagit avec la page
+        window.addEventListener("mousemove", resetTimer);
+        window.addEventListener("keydown", resetTimer);
+
+        function resetTimer() {
+            clearTimeout(timer);
+            timer = setTimeout(redirectToHomePage, 120000); // Réinitialisez la minuterie
+        }
+        var countdown; // Variable pour stocker l'intervalle du chronomètre
+
+        // Fonction pour démarrer le chronomètre
+        function startCountdown(duration, display) {
+            var timer = duration, minutes, seconds;
+            countdown = setInterval(function () {
+                minutes = parseInt(timer / 60, 10);
+                seconds = parseInt(timer % 60, 10);
+
+                minutes = minutes < 10 ? "0" + minutes : minutes;
+                seconds = seconds < 10 ? "0" + seconds : seconds;
+
+                display.textContent = minutes + ":" + seconds;
+
+                if (--timer < 0) {
+                    clearInterval(countdown); // Arrêtez le chronomètre lorsque le temps est écoulé
+                    // Vous pouvez ajouter une action à effectuer ici, par exemple une redirection
+                    // window.location.href = "{% url 'index' %}"; // Redirection vers la page d'accueil
+                }
+            }, 1000); // Met à jour le chronomètre chaque seconde (1000 ms)
+        }
+
+        // Démarrez le chronomètre lorsque la page est chargée
+        window.onload = function () {
+            var twoMinutes = 120, // Durée du chronomètre en secondes (2 minutes)
+                display = document.getElementById("chrono"); // Élément où afficher le chronomètre
+            startCountdown(twoMinutes, display);
+        };
 
 
 </script>
