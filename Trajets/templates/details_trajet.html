@@ -2,47 +2,45 @@
 {% load static %}
 
 {% block content %}
-<div class="container mt-5">
+<div class="container mt-5" xmlns="http://www.w3.org/1999/html">
     <div class="row">
         <!-- Colonne de gauche pour les informations du passager, les sièges et la méthode de paiement -->
         <div class="col-md-6">
             <div class="card">
+                <form method="POST" action="{% url 'details_trajet' trajet.id %}">
+                {% csrf_token %}
                 <div class="card-body">
                     <h5 class="card-title">Informations du passager</h5>
-
-                    <form>
-                        <div class="form-row">
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="nom">Nom</label>
-                                    <input type="text" class="form-control" id="nom" name="nom" placeholder="Nom">
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="prenom">Prénom</label>
-                                    <input type="text" class="form-control" id="prenom" name="prenom" placeholder="Prénom">
-                                </div>
+                    <div class="form-row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="{{ form.nom.id_for_label }}">Nom</label>
+                                <input type="text" class="form-control" id="{{ form.nom.id_for_label }}" name="nom" placeholder="Nom">
                             </div>
                         </div>
-                        <div class="form-group">
-                            <label for="email">Email</label>
-                            <input type="email" class="form-control" id="email" name="email" placeholder="Email">
-                        </div>
-                        <div class="form-group">
-                            <label for="telephone">Téléphone</label>
-                            <div class="input-group">
-                                <div class="input-group-prepend">
-                                    <span class="input-group-text">+33</span> <!-- Indicateur de pays -->
-                                </div>
-                                <input type="text" class="form-control" id="telephone" name="telephone" placeholder="Numéro de téléphone">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="{{ form.prenom.id_for_label }}">Prénom</label>
+                                <input type="text" class="form-control" id="{{ form.prenom.id_for_label }}" name="prenom" placeholder="Prénom">
                             </div>
                         </div>
-                    </form>
+                    </div>
+                    <div class="form-group">
+                        <label for="{{ form.adresse_mail.id_for_label }}">Email</label>
+                        <input type="email" class="form-control" id="{{ form.adresse_mail.id_for_label }}" name="adresse_mail" placeholder="Email">
+                    </div>
+                    <div class="form-group">
+                        <label for="{{ form.numero_telephone.id_for_label }}">Téléphone</label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">+33</span> <!-- Indicateur de pays -->
+                            </div>
+                            <input type="text" class="form-control" id="{{ form.numero_telephone.id_for_label }}" name="numero_telephone" placeholder="Numéro de téléphone">
+                        </div>
+                    </div>
                 </div>
                 <div class="card-footer">
                     <h5 class="card-title">Choix du siège</h5>
-                    <form>
                         <div class="form-check form-check-inline">
                             <input class="form-check-input" type="radio" checked name="choixSiege" id="choixSiege1" value="choisir">
                             <label class="form-check-label" for="choixSiege1">
@@ -56,42 +54,43 @@
                                 Siège Aléatoire
                             </label>
                         </div>
-
-
-                    </form>
-                </div>
-    <div class="card-footer">
+                    </div>
+                <div class="card-footer">
                 <h5 class="card-title">Méthode de paiement</h5>
-        <br>
-                <form>
+                <br>
                     <!-- Méthode de paiement par carte de crédit -->
-                    <div class="form-check mb-4">
-                        <input class="form-check-input" type="radio" name="methodePaiement" id="carteCredit" value="carteCredit">
-                        <label class="form-check-label d-flex align-items-center" for="carteCredit">
-                            <img src="{% static 'Trajets/images/carte_credit_logo.png' %}" alt="Carte de crédit" class="mr-2" width="40">
+                <div class="form-check mb-4">
+                        <input class="form-check-input" type="radio" checked name="methode_paiement" id="carte_credit" value="carte_credit">
+                        <label class="form-check-label d-flex align-items-center" for="carte_credit">
+                            <img src="{% static 'Trajets/images/carte_credit_logo.png' %}" alt="carte_credit" class="mr-2" width="40">
                         Carte de crédit
                     </label>
                 </div>
 
                 <!-- Méthode de paiement Google Pay -->
                 <div class="form-check mb-4">
-                    <input class="form-check-input" type="radio" name="methodePaiement" id="googlePay" value="googlePay">
-                    <label class="form-check-label d-flex align-items-center" for="googlePay">
+                    <input class="form-check-input" type="radio" name="methode_paiement" id="paypal" value="googlePay">
+                    <label class="form-check-label d-flex align-items-center" for="paypal">
                         <img src="{% static 'Trajets/images/google_pay_logo.png' %}" alt="Google Pay" class="mr-2" width="31">
-                        Google Pay
+                        PayPal
                     </label>
                 </div>
 
                 <!-- Méthode de paiement PayPal -->
                 <div class="form-check mb-3">
-                    <input class="form-check-input" type="radio" name="methodePaiement" id="paypal" value="paypal">
-                    <label class="form-check-label d-flex align-items-center" for="paypal">
-                        <img src="{% static 'Trajets/images/paypal_logo.png' %}" alt="PayPal" class="mr-2" width="40">
-                        PayPal
+                    <input class="form-check-input" type="radio" name="methode_paiement" id="virement" value="virement">
+                    <label class="form-check-label d-flex align-items-center" for="virement">
+                        <img src="{% static 'Trajets/images/paypal_logo.png' %}" alt="virement" class="mr-2" width="40">
+                        Virement
                     </label>
                 </div>
-            </form>
-        </div>            </div>
+        </div>
+                <div class="card-footer text-center">
+                    <button type="submit" class="btn btn-info">Passer au paiement</button>
+                </div>
+
+                </form>
+        </div>
         </div>
 
         <!-- Colonne de droite pour la carte de l'itinéraire -->
@@ -113,21 +112,21 @@
                     <!-- Ajoutez ici un bouton pour passer au paiement -->
                 </div>
 
-                <div class="card-footer text-center">
-                    <button type="button" class="btn btn-info">Passer au paiement</button>
-                </div>
+
+
                 <div class="card-body">
                     <!-- Ajoutez ici les informations spécifiques au trajet telles que la ville de départ, la ville d'arrivée, les dates, etc. -->
                 </div>
-                <div class="card-footer" style="margin-top:-25px">
+                <div class="card-footer">
                     <h5 class="card-title">Carte de l'itinéraire</h5>
-                    <div id="map" style="height: 300px;"
+                    <div id="map" style="height: 360px;"
                      data-latitude-depart="{{ latitude_depart }}"
                      data-longitude-depart="{{ longitude_depart }}"
                      data-latitude-arrivee="{{ latitude_arrivee }}"
                      data-longitude-arrivee="{{ longitude_arrivee }}">
                     </div>
                 </div>
+
             </div>
         </div>
     </div>

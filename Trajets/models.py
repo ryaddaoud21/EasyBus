@@ -19,65 +19,70 @@ VILLES_CHOICES = [
 ]
 
 class Trajet(models.Model):
-        VILLES_CHOICES = [
-            ('Alger', 'Alger'),
-            ('Oran', 'Oran'),
-            ('Constantine', 'Constantine'),
-            ('Annaba', 'Annaba'),
-            ('Tlemcen', 'Tlemcen'),
-            ('Tizi Ouzou', 'Tizi Ouzou'),
-            ('Béjaïa', 'Béjaïa'),
-            ('Blida', 'Blida'),
-            ('Sétif', 'Sétif'),
-            ('Biskra', 'Biskra'),
-        ]
-
-        lieu_depart = models.CharField(max_length=100, choices=VILLES_CHOICES)
-        lieu_arrivee = models.CharField(max_length=100, choices=VILLES_CHOICES)
-        date_depart = models.DateTimeField()
-        date_arrivee = models.DateTimeField()
-        prix = models.DecimalField(max_digits=10, decimal_places=2,default=10)
-
-        # Ajoutez d'autres champs selon vos besoins
-
-        def __str__(self):
-            return f"{self.lieu_depart} - {self.lieu_arrivee}"
-
-        @property
-        def duree_trajet(self):
-            # Calcul de la durée en soustrayant date_depart de date_arrivee
-            duree = self.date_arrivee - self.date_depart
-
-            # La durée est maintenant stockée dans un objet timedelta
-            # Vous pouvez extraire les jours, les heures, les minutes, etc. si nécessaire
-            return duree
-
-        def duree_minutes(self):
-            return int(self.duree_trajet.total_seconds() / 60)
-
-        def duree_formattee(self):
-            heures, minutes = divmod(self.duree_minutes(), 60)
-            return f"{heures:02d}H:{minutes:02d}min"
+    id = models.AutoField(primary_key=True)
 
 
-        def __str__(self):
-            return f"Trajet de {self.lieu_depart} à {self.lieu_arrivee}"
+    lieu_depart = models.CharField(max_length=100, choices=VILLES_CHOICES)
+    lieu_arrivee = models.CharField(max_length=100, choices=VILLES_CHOICES)
+    date_depart = models.DateTimeField()
+    date_arrivee = models.DateTimeField()
+    prix = models.DecimalField(max_digits=10, decimal_places=2,default=10)
+
+    # Ajoutez d'autres champs selon vos besoins
+
+    def __str__(self):
+        return f"{self.lieu_depart} - {self.lieu_arrivee}"
+
+    @property
+    def duree_trajet(self):
+        # Calcul de la durée en soustrayant date_depart de date_arrivee
+        duree = self.date_arrivee - self.date_depart
+
+        # La durée est maintenant stockée dans un objet timedelta
+        # Vous pouvez extraire les jours, les heures, les minutes, etc. si nécessaire
+        return duree
+
+    def duree_minutes(self):
+        return int(self.duree_trajet.total_seconds() / 60)
+
+    def duree_formattee(self):
+        heures, minutes = divmod(self.duree_minutes(), 60)
+        return f"{heures:02d}H:{minutes:02d}min"
+
+
+    def __str__(self):
+        return f"Trajet de {self.lieu_depart} à {self.lieu_arrivee}"
+
+
+class Passager(models.Model):
+    id = models.AutoField(primary_key=True)
+    nom = models.CharField(max_length=100)
+    prenom = models.CharField(max_length=100)
+    adresse_mail = models.EmailField(default='adresse_par_defaut@example.com')
+    numero_telephone = models.CharField(max_length=20, default='0780342309')
+
+    def __str__(self):
+        return f"{self.prenom} {self.nom}"
+
+    # Ajoutez d'autres champs selon vos besoins
 
 class Reservation(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)  # Liaison avec le modèle User
+    passager = models.ForeignKey(Passager, on_delete=models.CASCADE)
     trajet = models.ForeignKey(Trajet, on_delete=models.CASCADE)
     date_reservation = models.DateTimeField(auto_now_add=True)
-    nombre_passagers = models.PositiveIntegerField()
+    nombre_passagers = models.PositiveIntegerField(default=1)
+    METHODES_PAIEMENT = [
+        ('carte_credit', 'Carte de crédit'),
+        ('paypal', 'PayPal'),
+        ('virement', 'Virement bancaire'),
+    ]
+    methodePaiement = models.CharField(max_length=20, choices=METHODES_PAIEMENT,default='carte_credit')
+
+
     # Ajoutez d'autres champs selon vos besoins
 
     def __str__(self):
         return f"Réservation {self.id} ({self.trajet})"
 
-class Passager(models.Model):
-    reservation = models.ForeignKey(Reservation, on_delete=models.CASCADE)
-    nom = models.CharField(max_length=100)
-    prenom = models.CharField(max_length=100)
-    # Ajoutez d'autres champs selon vos besoins
 
-    def __str__(self):
-        return f"{self.prenom} {self.nom}"
+

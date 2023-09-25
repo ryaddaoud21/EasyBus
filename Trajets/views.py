@@ -1,10 +1,11 @@
 from django.shortcuts import render,redirect,reverse
-from .models import Trajet
-
-# Create your views here.
+from .models import Trajet ,Reservation ,Passager
 from django.shortcuts import render,get_object_or_404
-from .models import VILLES_CHOICES
 from .forms import *
+
+
+
+
 def index(request):
     trajets = Trajet.objects.all()
     trajet_filter = ChercherTrajet(request.GET)
@@ -78,7 +79,24 @@ def Apropos(request):
 from geopy.geocoders import Nominatim
 
 
-
+from django.http import FileResponse
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfgen import canvas
+from barcode import generate
+from barcode.writer import ImageWriter
+from barcode import Code128
+from reportlab.lib.pagesizes import letter, landscape
+from reportlab.lib import colors
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph
+from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.platypus import Spacer
+from reportlab.graphics.barcode import code128
+from reportlab.graphics.shapes import Drawing
+from reportlab.lib.units import inch
+from django.http import FileResponse
+from io import BytesIO
+from reportlab.graphics.shapes import Group, Drawing, String
+from reportlab.platypus import Image
 def details_trajet(request, trajet_id):
     trajet = get_object_or_404(Trajet, pk=trajet_id)
 
@@ -102,7 +120,65 @@ def details_trajet(request, trajet_id):
         print(f"Coordonnées introuvables pour {ville_depart} ou {ville_arrivee}")
 
 
+
+
+    if request.method == 'POST':
+        form = ReservationForm(request.POST)
+        if form.is_valid():
+            print (form.errors)
+            print("valide")
+
+            passager = Passager(nom=form.cleaned_data['nom'],
+                                prenom=form.cleaned_data['prenom'],
+                                adresse_mail=form.cleaned_data['adresse_mail'],
+                                numero_telephone=form.cleaned_data['numero_telephone'],)
+            passager.save()
+
+            reservation = Reservation(
+                passager=passager,
+                trajet =trajet,
+                methodePaiement=form.cleaned_data['methode_paiement'],
+                nombre_passagers=1,
+            )
+            # Enregistrez l'instance dans la base de données
+            reservation.save()
+
+            numero_reservation=str(reservation.id)
+            # Créez le code-barres avec le numéro de réservation
+            code = Code128(numero_reservation, writer=ImageWriter())
+            nom_fichier = f'Barcode/{numero_reservation}'
+
+            # Assurez-vous que le dossier 'Barcode' existe (créez-le s'il n'existe pas)
+            dossier_barcode = os.path.dirname(nom_fichier)
+            os.makedirs(dossier_barcode, exist_ok=True)
+
+            # Enregistrez le code-barres en tant qu'image dans le dossier spécifié
+            code.save(nom_fichier)
+
+
+        else:
+            print (form.errors)
+
+
     # Vous pouvez également gérer le formulaire de réservation ici
     context={'trajet': trajet ,'latitude_depart':latitude_depart,'longitude_depart':longitude_depart,
-             'latitude_arrivee':latitude_arrivee,'longitude_arrivee':longitude_arrivee,}
+             'latitude_arrivee':latitude_arrivee,'longitude_arrivee':longitude_arrivee}
     return render(request, 'details_trajet.html', context)
+
+
+def payment(request):
+
+    trajets = Trajet.objects.all()  # Utilisez 'objects' au lieu de 'objetcs'
+    context = {'trajets': trajets}
+    print(trajets)
+
+    return render(request, 'payment.html', context)
+
+
+def reservation(request):
+
+    trajets = Trajet.objects.all()  # Utilisez 'objects' au lieu de 'objetcs'
+    context = {'trajets': trajets}
+    print(trajets)
+
+    return render(request, 'reservation.html', context)
