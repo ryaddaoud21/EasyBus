@@ -27,3 +27,8 @@ class ReservationForm(forms.Form):
         ('virement', 'Virement bancaire'),
     ]
     methode_paiement = forms.ChoiceField(choices=METHODES_PAIEMENT)
+
+
+class ChercheReservation(forms.Form):
+    numero_reservation = forms.CharField(label="N° de réservation", max_length=100, required=True)
+    email_phone = forms.CharField(label="E-Mail ou numéro de téléphone", max_length=100, required=True)

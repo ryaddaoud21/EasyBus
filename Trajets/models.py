@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 from django.db import models
 
 from django.db import models
+from django.urls import reverse
 
 VILLES_CHOICES = [
     ('Alger', 'Alger'),
@@ -77,6 +78,12 @@ class Reservation(models.Model):
         ('virement', 'Virement bancaire'),
     ]
     methodePaiement = models.CharField(max_length=20, choices=METHODES_PAIEMENT,default='carte_credit')
+    ticket = models.FileField(upload_to='tickets/', null=True, blank=True)
+
+    def get_ticket_url(self):
+        if self.ticket:
+            return reverse('details_reservation', kwargs={'reservation_id': self.id})
+        return None
 
 
     # Ajoutez d'autres champs selon vos besoins

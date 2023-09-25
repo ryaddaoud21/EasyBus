@@ -16,5 +16,6 @@ urlpatterns = [
     path('rechercher_trajets_index/', rechercher_trajets_index, name='rechercher_trajets_index'),
 
     path('trajets/<int:trajet_id>/', details_trajet, name='details_trajet'),
+    path('reservation/<int:reservation_id>/', details_reservation, name='details_reservation'),
 
 ]
