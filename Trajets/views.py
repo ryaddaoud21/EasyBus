@@ -17,8 +17,11 @@ def index(request):
 
 
         if date_depart and ville_depart and ville_arrive:
+
             trajets = trajets.filter(date_depart__gte=date_depart,lieu_depart=ville_depart,lieu_arrivee=ville_arrive)
             print(trajets)
+            context = {'trajets': trajets, 'trajet_filter': trajet_filter, 'VILLES_CHOICES': VILLES_CHOICES}
+            return render(request, 'recherche_trajet.html', context)
 
 
 
@@ -58,23 +61,25 @@ def rechercher_trajets_index(request):
 
 import os
 import folium
+from .models import VILLES_CHOICES
 def Apropos(request):
 
-    trajets = Trajet.objects.all()  # Utilisez 'objects' au lieu de 'objetcs'
-    shp_dir = os.path.join(os.getcwd(), 'media', 'shp')
-    # folium
-    m = folium.Map(location=[-16.22, -71.59], zoom_start=10)
-    ## style
-    style_basin = {'fillColor': '#228B22', 'color': '#228B22'}
-    style_rivers = {'color': 'blue'}
-    ## adding to view
+    geolocator = Nominatim(user_agent="m.ryad@gmail.com")
 
-    folium.LayerControl().add_to(m)
-    ## exporting
-    m = m._repr_html_()
-    context = {'my_map': m}
+    m = folium.Map(location=[36.7538, 3.0588], zoom_start=6)
 
-    return render(request, 'Apropos.html', context)
+    # Pour chaque ville, obtenez les coordonnées et ajoutez un marqueur à la carte
+    for ville in VILLES_CHOICES:
+        coord = geolocator.geocode(ville)
+        if coord:
+            latitude = coord.latitude
+            longitude = coord.longitude
+            folium.Marker([latitude, longitude], tooltip=ville).add_to(m)
+
+    # Générez le code HTML de la carte
+    map_html = m._repr_html_()
+
+    return render(request, 'Apropos.html', {'map_html': map_html})
 
 from geopy.geocoders import Nominatim
 from barcode.writer import ImageWriter
@@ -133,7 +138,6 @@ def details_trajet(request, trajet_id):
             )
             # Enregistrez l'instance dans la base de données
             reservation.save()
-
             numero_reservation=str(reservation.id)
             # Créez le code-barres avec le numéro de réservation
             code = Code128(numero_reservation, writer=ImageWriter())
@@ -206,6 +210,7 @@ def details_trajet(request, trajet_id):
             reservation.save()
             with open(pdf_file_path, 'rb') as pdf_file:
                 reservation.ticket.save(f'ticket_{numero_reservation}.pdf', File(pdf_file), save=True)
+            return render(request,'payment.html')
 
         else:
             print (form.errors)
@@ -241,8 +246,9 @@ def reservation(request):
 
 
         except Reservation.DoesNotExist:
-            pass  # Gérer le cas où la réservation n'est pas trouvée
-    else:
+            print('pas de reservation')
+            return render(request, 'details_reservation.html',{'reservation': reservation} )
+
         print(form.errors)
     return render(request, 'reservation.html', {'form': form, 'reservation': reservation})
 

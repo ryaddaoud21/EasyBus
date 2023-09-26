@@ -8,6 +8,7 @@ from .views import *
 urlpatterns = [
     path('', index , name='index'),
     path('trajets/',trajets,name='liste_trajets'),
+    path('Recherche_trajets/',rechercher_trajets,name='rechercher_trajets'),
     path('Apropos/', Apropos, name='Apropos'),
 
     path('rechercher_trajets/', rechercher_trajets, name='rechercher_trajets'),

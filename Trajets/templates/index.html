@@ -17,7 +17,7 @@
 <section class="container mt-5 " style="position: relative; z-index: 1;" >
     <div class="row justify-content-center">
         <div class="col-md-6">
-            <div class="card">
+            <div class="card" style="margin-top:-6pc;">
                 <div class="card-body">
                     <h2 class="text-center">Choisissez votre trajet</h2>
 
@@ -88,53 +88,26 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-6">
-         <!-- Liste des trajets -->
-            {% if trajets %}
-
-            {% for trajet in trajets %}
-            <div class="row mb-4">
-                <div class="col-md-12">
-<div class="card">
-            <div class="card-header">
-                <div class="float-left">
-                     <i class="fas fa-wifi"></i> <!-- Icône Wi-Fi -->
-                    <i class="fas fa-bus"></i> <!-- Icône Bus -->
-                    <i class="fas fa-charging-station"></i> <!-- Icône Chargeur -->
-                </div>
-                <div class="float-right">
-                    <b>Prix : {{ trajet.prix }} DA</b>
-                </div>
-                <div class="clearfix"></div>
-            </div>
-            <div class="card-body">
-                <div class="float-left">
-                    <h5 class="card-title">Trajet de {{ trajet.lieu_depart }} à {{ trajet.lieu_arrivee }}</h5>
-                    <p class="card-text">Date de départ : {{ trajet.date_depart }}</p>
-                    <p class="card-text">Date d'arrivée : {{ trajet.date_arrivee }}</p>
-                    <p class="card-text">Durée de trajet : <b>{{ trajet.duree_formattee }}</b></p>
-
-
-                </div>
-                <div class="float-right bottom-right">
-                    <a  href="{% url 'details_trajet' trajet.id %}" class="btn btn-info">Continuer</a>
-                </div>
-
-            </div>
-
-        </div>                </div>
-            </div>
-            {% endfor %}
-
-            {% else  %}
-            <div class="text-center">
-                <p style="font-weight: bold;">Oups! Aucun trajet disponible pour cette date de recherche.</p>
-                <a href="{% url 'index' %}" class="btn btn-info">Retour à la page de recherche</a>
-            </div>
-            {% endif %}
-        </div>
     </div>
+    <div class="row justify-content-center" style="    margin: 40px;">
+        <div class="col-md-3">
+            <div class="card" style="width: 240px; height: 80px;">
+                <a href="{% url 'reservation' %}" class="text-center btn btn-infor  py-4">  Gérer ma réservation</a>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card" style="width: 240px; height: 80px;">
+                <a href="{% url 'Apropos' %}" class="text-center py-4 btn btn-infor">Notre destination</a>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card" style="width: 240px; height: 80px;">
+                <a href="{% url 'Apropos' %}" class="text-center py-4 btn btn-infor"> Aide</a>
+            </div>
+        </div>
+</div>
 </section>
+
 
 <!-- Main Content -->
 <main class="container mt-5">
@@ -210,7 +183,9 @@
 
 
 
+<style>
 
+</style>
 
 
 

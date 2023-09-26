@@ -21,8 +21,6 @@ VILLES_CHOICES = [
 
 class Trajet(models.Model):
     id = models.AutoField(primary_key=True)
-
-
     lieu_depart = models.CharField(max_length=100, choices=VILLES_CHOICES)
     lieu_arrivee = models.CharField(max_length=100, choices=VILLES_CHOICES)
     date_depart = models.DateTimeField()

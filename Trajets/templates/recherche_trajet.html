@@ -19,6 +19,7 @@
     </div>
 </div>
     <!-- Liste des trajets -->
+    {% if trajets %}
     {% for trajet in trajets %}
 <div class="row mb-4">
     <div class="col-md-12">
@@ -36,11 +37,9 @@
             </div>
             <div class="card-body">
                 <div class="float-left">
-
-                    <p><i class="fas fa-map-marker-alt align-middle" style=" margin-top: -5px;"></i> <b>De  : {{ trajet.lieu_depart }}</b> : Date de départ : {{ trajet.date_depart }}</p>
-                    <p><i class="fas fa-map-marker-alt align-middle" style=" margin-top: -5px;" ></i> <b>À : {{ trajet.lieu_arrivee }}</b> : Date d'arrivée : {{ trajet.date_arrivee }}</p>
-
-
+                    <h5 class="card-title">Trajet de {{ trajet.lieu_depart }} à {{ trajet.lieu_arrivee }}</h5>
+                    <p class="card-text">Date de départ : {{ trajet.date_depart }}</p>
+                    <p class="card-text">Date d'arrivée : {{ trajet.date_arrivee }}</p>
                     <p class="card-text">Durée de trajet : <b>{{ trajet.duree_formattee }}</b></p>
 
                 </div>
@@ -55,6 +54,17 @@
 </div>
 
     {% endfor %}
+    {% else %}
+    <div class="card-body">
+                <div class="text-center">
+                    <p class="card-text"> Malheureusement ! Pas de trajet disponible dans cette date</p>
+
+                </div>
+
+
+            </div>
+    {% endif %}
+
 </div>
 <style>
 
