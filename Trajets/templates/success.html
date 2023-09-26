@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %} Success {% endblock title%}
+{% block content %}
+
+<section class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 text-center">
+            <div class="card">
+                <div class="card-body">
+                    <img src="{% static 'trajets/images/check.png' %}" alt="Logo de validation" width="50" class="img-fluid mx-auto d-block">
+                    <h2 class="text-center">Paiement réussi !</h2>
+                    <p>Votre paiement a été accepté !</p>
+                    <a href="{% url 'index' %}" class="btn btn-info d-block mx-auto">Faire une autre réservation</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock content %}

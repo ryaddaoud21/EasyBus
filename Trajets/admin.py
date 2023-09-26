@@ -7,3 +7,4 @@ from .models import *
 admin.site.register(Trajet)
 admin.site.register(Passager)
 admin.site.register(Reservation)
+admin.site.register(PaymentHistory)

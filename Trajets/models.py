@@ -1,9 +1,4 @@
 from django.db import models
-
-from django.contrib.auth.models import User
-from django.db import models
-
-from django.db import models
 from django.urls import reverse
 
 VILLES_CHOICES = [
@@ -88,6 +83,29 @@ class Reservation(models.Model):
 
     def __str__(self):
         return f"Réservation {self.id} ({self.trajet})"
+
+
+
+class PaymentHistory(models.Model):
+    PENDING = "P"
+    COMPLETED = "C"
+    FAILED = "F"
+
+    STATUS_CHOICES = (
+        (PENDING, ("pending")),
+        (COMPLETED, ("completed")),
+        (FAILED, ("failed")),   )
+
+    email = models.EmailField()  # Supprimez unique=True
+    trajet = models.ForeignKey(Trajet, on_delete=models.CASCADE,null=True)
+    payment_status = models.CharField(  max_length=1, choices=STATUS_CHOICES, default=PENDING )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return str(self.trajet)
+
+
 
 
 

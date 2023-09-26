@@ -20,24 +20,14 @@
             <div class="card">
                 <div class="card-body">
                     <h2 class="text-center">Payment </h2>
-
-
-            <form id="payment-form">
-                <label for="card-element">
-                    Carte bancaire
-                </label>
-                <div id="card-element" style="width: 100%; padding: 10px;">
-                    <!-- Un élément de carte Stripe -->
-                </div>
-
-                <!-- Utilisé pour afficher des erreurs de validation -->
-                <div id="card-errors" role="alert" style="margin-top: 10px;"></div>
-
-                <button id="submit-payment" class="btn btn-info" style="display: block; margin: 0 auto;">Valider le paiement</button>
-            </form>
-
-
-
+                        <form method="POST" action="{% url 'payment' %}">
+                        {% csrf_token %}
+                    </form>
+                    <section class="section">
+                    <div class="container">
+                      <button class="button is-primary" id="submitBtn">Purchase!</button>
+                    </div>
+                  </section>
                 </div>
             </div>
         </div>
@@ -48,106 +38,35 @@
     <!-- Votre contenu ici -->
 </main>
 <script src="https://js.stripe.com/v3/"></script>
-
 <script>
-    // Utilisez votre clé publique Stripe
-    var stripe = Stripe('votre_clé_publique_stripe');
+// static/main.js
 
-    // Créez un élément de carte Stripe
-    var elements = stripe.elements();
-    var cardElement = elements.create('card');
+console.log("Sanity check!");
 
-    // Montrez l'élément de carte dans le formulaire
-    cardElement.mount('#card-element');
+// Get Stripe publishable key
+fetch("/config/")
+.then((result) => { return result.json(); })
+.then((data) => {
+  // Initialize Stripe.js
+  const stripe = Stripe(data.publicKey);
 
-    // Gérez la soumission du formulaire
-    var form = document.getElementById('payment-form');
-    form.addEventListener('submit', function(event) {
-        event.preventDefault();
-
-        // Collectez les informations de carte et envoyez-les à Stripe
-        stripe.createToken(cardElement).then(function(result) {
-            if (result.error) {
-                // Gestion des erreurs
-                var errorElement = document.getElementById('card-errors');
-                errorElement.textContent = result.error.message;
-            } else {
-                // Succès ! Envoyez le jeton de paiement au serveur pour traitement ultérieur
-                // Vous devrez gérer cela côté serveur
-                var token = result.token;
-                // Envoyez le jeton au serveur
-            }
-        });
+  // new
+  // Event handler
+  document.querySelector("#submitBtn").addEventListener("click", () => {
+    // Get Checkout Session ID
+    fetch("/create-checkout-session/")
+    .then((result) => { return result.json(); })
+    .then((data) => {
+      console.log(data);
+      // Redirect to Stripe Checkout
+      return stripe.redirectToCheckout({sessionId: data.sessionId})
+    })
+    .then((res) => {
+      console.log(res);
     });
-
-    document.addEventListener('DOMContentLoaded', function () {
-        const allerSimpleRadio = document.getElementById('allerSimple');
-        const allerRetourRadio = document.getElementById('allerRetour');
-        const returnDateInput = document.getElementById('returnDate');
-        const departureCitySelect = document.getElementById('departureCity');
-        const arrivalCitySelect = document.getElementById('arrivalCity');
-
-        // Ajoutez un écouteur d'événements au changement de la ville de départ
-        departureCitySelect.addEventListener('change', function () {
-            // Récupérez la valeur sélectionnée de la ville de départ
-            const selectedDepartureCity = departureCitySelect.value;
-
-            // Parcourez toutes les options de la ville d'arrivée
-            for (const option of arrivalCitySelect.options) {
-                // Si l'option correspond à la ville de départ, désactivez-la
-                if (option.value === selectedDepartureCity) {
-                    option.disabled = true;
-                } else {
-                    option.disabled = false;
-                }
-            }
-        });
-
-        // Fonction pour activer ou désactiver le champ de date de retour
-        function toggleReturnDateField() {
-            returnDateInput.disabled = !allerRetourRadio.checked;
-        }
-
-        // Écouteurs d'événements pour détecter les changements dans les boutons radio
-        allerSimpleRadio.addEventListener('change', toggleReturnDateField);
-        allerRetourRadio.addEventListener('change', toggleReturnDateField);
-
-        // Appel initial pour configurer l'état du champ de date de retour
-        toggleReturnDateField();
-
-        // Ajoutez un écouteur d'événements au changement de la date de départ
-        departureDateInput.addEventListener('change', function () {
-            // Récupérez la date de départ sélectionnée
-            const departureDate = new Date(departureDateInput.value);
-
-            // Si la date de retour est antérieure à la date de départ, réinitialisez-la
-            if (returnDateInput.value) {
-                const returnDate = new Date(returnDateInput.value);
-                if (returnDate <= departureDate) {
-                    returnDateInput.value = '';
-                }
-            }
-
-            // Définissez la limite minimale de la date de retour comme étant la date de départ
-            returnDateInput.min = departureDateInput.value;
-        });
-
-        // Ajoutez un écouteur d'événements au changement de la date de retour
-        returnDateInput.addEventListener('change', function () {
-            // Récupérez la date de départ et la date de retour sélectionnées
-            const departureDate = new Date(departureDateInput.value);
-            const returnDate = new Date(returnDateInput.value);
-
-            // Si la date de retour est antérieure à la date de départ, réinitialisez-la
-            if (returnDate <= departureDate) {
-                returnDateInput.value = '';
-            }
-        });
-    });
+  });
+});
 </script>
-
-<script src="https://js.stripe.com/v3/"></script>
-
 
 
 

@@ -52,7 +52,20 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'EasyBus.urls'
 
+# config/settings.py
 
+STRIPE_PUBLIC_KEY = ''
+STRIPE_SECRET_KEY = ''
+
+STRIPE_WEBHOOK_SECRET='whsec_e7dd79e57cdc68830975343ea12d696ee73a66bbe82a1196692a91c0e2c25b90'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+BACKEND_DOMAIN = "http://127.0.0.1:8000"
+PAYMENT_SUCCESS_URL = "http://127.0.0.1:8000/success/"
+PAYMENT_CANCEL_URL = "http://127.0.0.1:8000/cancel/"
 
 
 TEMPLATES = [
