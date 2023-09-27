@@ -15,6 +15,40 @@
                     <a href="{% url 'index' %}" class="btn btn-info d-block mx-auto">Faire une autre réservation</a>
                 </div>
             </div>
+            <div class="card">
+                <div class="row">
+                    <div class="col-md-12">
+                        <br>
+                        <h5 class="card-title text-center">Détails de la réservation</h5>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card-body">
+                            <p class="card-text"><strong>Numéro de réservation:</strong> {{ reservation.id }}</p>
+                            <p class="card-text"><strong>Nom:</strong> {{ reservation.passager.nom }}</p>
+                            <p class="card-text"><strong>Prénom:</strong> {{ reservation.passager.prenom }}</p>
+                            <p class="card-text"><strong>Email :</strong> {{ reservation.passager.adresse_mail }}</p>
+                            <p class="card-text"><strong>Numéro :</strong> {{ reservation.passager.numero_telephone }}</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card-body">
+                            <p class="card-text"><strong>Départ De :</strong> {{ reservation.trajet.lieu_depart }}</p>
+                            <p class="card-text"><strong>Date De Départ :</strong> {{ reservation.trajet.date_depart }}</p>
+                            <p class="card-text"><strong>Destination:</strong> {{ reservation.trajet.lieu_arrivee }}</p>
+                            <p class="card-text"><strong>Date D'Arrivée:</strong> {{ reservation.trajet.date_arrivee }}</p>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+
+                     <div class="card-footer text-center"> <!-- Ajout de la classe text-center ici -->
+                        <a href="{{reservation.get_ticket_url}}" class="btn btn-info">Télécharger votre ticket</a>
+                    </div>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </div>
 </section>

@@ -61,7 +61,7 @@ class Passager(models.Model):
     # Ajoutez d'autres champs selon vos besoins
 
 class Reservation(models.Model):
-    passager = models.ForeignKey(Passager, on_delete=models.CASCADE)
+    passager = models.ForeignKey(Passager, on_delete=models.CASCADE,null=True)
     trajet = models.ForeignKey(Trajet, on_delete=models.CASCADE)
     date_reservation = models.DateTimeField(auto_now_add=True)
     nombre_passagers = models.PositiveIntegerField(default=1)

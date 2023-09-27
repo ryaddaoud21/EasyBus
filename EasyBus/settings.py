@@ -46,6 +46,7 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
@@ -57,7 +58,7 @@ ROOT_URLCONF = 'EasyBus.urls'
 STRIPE_PUBLIC_KEY = ''
 STRIPE_SECRET_KEY = ''
 
-STRIPE_WEBHOOK_SECRET='whsec_e7dd79e57cdc68830975343ea12d696ee73a66bbe82a1196692a91c0e2c25b90'
+STRIPE_WEBHOOK_SECRET=''
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"

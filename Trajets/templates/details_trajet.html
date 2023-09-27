@@ -7,7 +7,7 @@
         <!-- Colonne de gauche pour les informations du passager, les sièges et la méthode de paiement -->
         <div class="col-md-6">
             <div class="card">
-                <form method="POST" action="{% url 'checkout' trajet.id %}">
+                <form method="POST" action="{% url 'details_trajet' trajet.id %}">
                 {% csrf_token %}
                 <div class="card-body">
                     <h5 class="card-title">Informations du passager</h5>
@@ -108,13 +108,7 @@
                     <hr class="vertical-line">
 
                     <p><b>Prix : {{ trajet.prix }} DA</b></p>
-                    <!-- Ajoutez ici un bouton pour passer au paiement -->
-                       <div class="centet-text">
-                              <form action="{% url 'checkout' trajet.id %}" method="POST">
-                             {% csrf_token %}
-                             <button type="submit" class="btn btn-info">Checkout</button>
-                             </form>
-                       </div>
+
                      </div>
 
 

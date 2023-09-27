@@ -126,25 +126,204 @@ def details_trajet(request, trajet_id):
     if request.method == 'POST':
         form = ReservationForm(request.POST)
         if form.is_valid():
-            print (form.errors)
-            print("valide")
-
+            trajet = Trajet.objects.get(id=trajet_id)
             passager = Passager(nom=form.cleaned_data['nom'],
                                 prenom=form.cleaned_data['prenom'],
                                 adresse_mail=form.cleaned_data['adresse_mail'],
-                                numero_telephone=form.cleaned_data['numero_telephone'],)
-            passager.save()
+                                numero_telephone=form.cleaned_data['numero_telephone'], )
 
+            checkout_session = stripe.checkout.Session.create(
+                payment_method_types=["card"],
+                line_items=[
+                    {
+                        "price_data": {
+                            "currency": "usd",
+                            "unit_amount": int(trajet.prix),
+                            "product_data": {
+                                "name": trajet.lieu_depart,
+                                "description": trajet.lieu_arrivee },
+
+                        },
+                        "quantity": 1,
+                    }
+                ],
+                metadata={"trajet_id": trajet.id ,"nom":form.cleaned_data['nom'] ,"prenom":form.cleaned_data['prenom'] ,
+                          "adresse_mail":form.cleaned_data['adresse_mail'] ,"numero_telephone":form.cleaned_data['numero_telephone'] ,
+                          "reservation_id":"" },
+                mode="payment",
+                success_url=settings.PAYMENT_SUCCESS_URL,
+                cancel_url=settings.PAYMENT_CANCEL_URL,
+            )
+            print(checkout_session.metadata)
+            return redirect(checkout_session.url)
+
+
+        else:
+            print (form.errors)
+
+
+    # Vous pouvez également gérer le formulaire de réservation ici
+    context={'trajet': trajet ,'latitude_depart':latitude_depart,'longitude_depart':longitude_depart,
+             'latitude_arrivee':latitude_arrivee,'longitude_arrivee':longitude_arrivee}
+    return render(request, 'details_trajet.html', context)
+
+
+
+
+
+def reservation(request):
+    form = ChercheReservation(request.GET or None)
+    reservation = None
+    if form.is_valid():
+        numero_reservation = form.cleaned_data.get('numero_reservation')
+        email_phone = form.cleaned_data.get('email_phone')
+
+        try:
+            reservation = Reservation.objects.get(id=numero_reservation,
+                                                  passager__adresse_mail=email_phone)
+            print(reservation)
+            return render(request, 'details_reservation.html', {'reservation': reservation})
+
+
+        except Reservation.DoesNotExist:
+            print('pas de reservation')
+            return render(request, 'details_reservation.html',{'reservation': reservation} )
+
+        print(form.errors)
+    return render(request, 'reservation.html', {'form': form, 'reservation': reservation})
+
+
+from django.utils.http import urlquote
+
+def details_reservation(request , reservation_id):
+    reservation = get_object_or_404(Reservation, pk=reservation_id)
+    if reservation.ticket:
+        file_path = reservation.ticket.path
+        response = FileResponse(open(file_path, 'rb'))
+        response['Content-Type'] = 'application/pdf'
+        response['Content-Disposition'] = f'attachment; filename="{urlquote(reservation.ticket.name)}"'
+        return response
+
+    return render(request, 'details_reservation.html', { 'reservation': reservation})
+
+
+
+from django.views import View
+
+
+class CreateStripeCheckoutSessionView(View):
+    def post(self, request, *args, **kwargs):
+        trajet = Trajet.objects.get(id=self.kwargs["trajet_id"])
+
+        checkout_session = stripe.checkout.Session.create(
+            payment_method_types=["card"],
+            line_items=[
+                {
+                     "price_data": {
+                        "currency": "usd",
+                        "unit_amount": int(trajet.prix) ,
+                        "product_data": {
+                            "name": trajet.lieu_depart,
+                            "description": trajet.lieu_arrivee,
+
+                        },
+                    },
+                    "quantity": 1,
+                }
+            ],
+            metadata={"trajet_id": trajet.id},
+            mode="payment",
+            success_url=settings.PAYMENT_SUCCESS_URL,
+            cancel_url=settings.PAYMENT_CANCEL_URL,
+        )
+        return redirect(checkout_session.url)
+
+
+
+
+from django.views.generic import TemplateView
+
+
+class SuccessView(TemplateView):
+    template_name = "success.html"
+
+
+
+
+class CancelView(TemplateView):
+    template_name = "Cancel.html"
+
+
+stripe.api_key = settings.STRIPE_SECRET_KEY
+from django.core.mail import send_mail # Add this
+from .models import PaymentHistory # Add this
+stripe.api_key = settings.STRIPE_SECRET_KEY
+from django.core.cache import cache
+from django.contrib.sessions.models import Session
+
+@method_decorator(csrf_exempt, name="dispatch")
+class StripeWebhookView(View):
+
+    def post(self, request, format=None,):
+        payload = request.body
+        endpoint_secret = settings.STRIPE_WEBHOOK_SECRET
+        sig_header = request.META["HTTP_STRIPE_SIGNATURE"]
+        event = None
+
+        try:
+            event = stripe.Webhook.construct_event(payload, sig_header, endpoint_secret)
+        except ValueError as e:
+            # Invalid payload
+            return HttpResponse(status=400)
+        except stripe.error.SignatureVerificationError as e:
+            # Invalid signature
+            return HttpResponse(status=400)
+
+
+        if event["type"] == "checkout.session.completed":
+            print("Payment successful")
+
+            # Add this
+            session = event["data"]["object"]
+            customer_email = session["customer_details"]["email"]
+            trajet_id = session["metadata"]["trajet_id"]
+            nom = session["metadata"]["nom"]
+            adresse_mail = session["metadata"]["adresse_mail"]
+            prenom = session["metadata"]["prenom"]
+            numero_telephone = session["metadata"]["numero_telephone"]
+            trajet = get_object_or_404(Trajet, id=trajet_id)
+            print(nom,prenom,adresse_mail,numero_telephone)
+            passager = Passager(nom=nom,
+                                prenom=prenom,
+                                adresse_mail=adresse_mail,
+                                numero_telephone=numero_telephone )
+            passager.save()
+            print(passager)
             reservation = Reservation(
                 passager=passager,
-                trajet =trajet,
-                methodePaiement=form.cleaned_data['methode_paiement'],
+                trajet=trajet,
+                methodePaiement="carte_credit",
                 nombre_passagers=1,
             )
-            # Enregistrez l'instance dans la base de données
             reservation.save()
+            session["metadata"]["reservation_id"] = reservation.id
+            reservation_id=session["metadata"]["reservation_id"]
+            print(reservation_id)
+            print(reservation)
+
+
+            send_mail(
+                subject=f"Votre Nouvelle Réservation :{trajet.id}",
+                message=f"Votre réservation est confirmée , Merci d’avoir choisi de voyager avec nous ! Vous trouverez ci-dessous un bref aperçu de votre/vos prochain(s) trajet(s) :{trajet.lieu_depart} à {trajet.lieu_arrivee}",
+                recipient_list=[customer_email],
+                from_email="m.ryaddaod21@gmail.com",
+            )
+
+            PaymentHistory.objects.create(
+                email=customer_email, trajet=trajet, payment_status="completed"
+            )
             numero_reservation=str(reservation.id)
-            # Créez le code-barres avec le numéro de réservation
+
             code = Code128(numero_reservation, writer=ImageWriter())
             nom_fichier = f'Barcode/{numero_reservation}'
 
@@ -213,246 +392,13 @@ def details_trajet(request, trajet_id):
             # Associez le chemin du fichier PDF à la réservation
             reservation.ticket = pdf_file_path
             reservation.save()
+
+
+
+
             with open(pdf_file_path, 'rb') as pdf_file:
                 reservation.ticket.save(f'ticket_{numero_reservation}.pdf', File(pdf_file), save=True)
-
-        else:
-            print (form.errors)
-
-
-    # Vous pouvez également gérer le formulaire de réservation ici
-    context={'trajet': trajet ,'latitude_depart':latitude_depart,'longitude_depart':longitude_depart,
-             'latitude_arrivee':latitude_arrivee,'longitude_arrivee':longitude_arrivee}
-    return render(request, 'details_trajet.html', context)
-
-
-
-
-
-def reservation(request):
-    form = ChercheReservation(request.GET or None)
-    reservation = None
-    if form.is_valid():
-        numero_reservation = form.cleaned_data.get('numero_reservation')
-        email_phone = form.cleaned_data.get('email_phone')
-
-        try:
-            reservation = Reservation.objects.get(id=numero_reservation,
-                                                  passager__adresse_mail=email_phone)
-            print(reservation)
-            return render(request, 'details_reservation.html', {'reservation': reservation})
-
-
-        except Reservation.DoesNotExist:
-            print('pas de reservation')
-            return render(request, 'details_reservation.html',{'reservation': reservation} )
-
-        print(form.errors)
-    return render(request, 'reservation.html', {'form': form, 'reservation': reservation})
-
-
-from django.utils.http import urlquote
-
-def details_reservation(request , reservation_id):
-    reservation = get_object_or_404(Reservation, pk=reservation_id)
-    if reservation.ticket:
-        file_path = reservation.ticket.path
-        response = FileResponse(open(file_path, 'rb'))
-        response['Content-Type'] = 'application/pdf'
-        response['Content-Disposition'] = f'attachment; filename="{urlquote(reservation.ticket.name)}"'
-        return response
-
-    return render(request, 'details_reservation.html', { 'reservation': reservation})
-
-
-
-from django.views import View
-
-
-stripe.api_key = settings.STRIPE_SECRET_KEY
-
-class CreateStripeCheckoutSessionView(View):
-    def post(self, request, *args, **kwargs):
-        trajet = Trajet.objects.get(id=self.kwargs["trajet_id"])
-
-        checkout_session = stripe.checkout.Session.create(
-            payment_method_types=["card"],
-            line_items=[
-                {
-                     "price_data": {
-                        "currency": "usd",
-                        "unit_amount": int(trajet.prix) ,
-                        "product_data": {
-                            "name": trajet.lieu_depart,
-                            "description": trajet.lieu_arrivee,
-
-                        },
-                    },
-                    "quantity": 1,
-                }
-            ],
-            metadata={"trajet_id": trajet.id},
-            mode="payment",
-            success_url=settings.PAYMENT_SUCCESS_URL,
-            cancel_url=settings.PAYMENT_CANCEL_URL,
-        )
-        print('out')
-        if request.method == 'POST':
-            print('in1')
-
-            form = ReservationForm(request.POST)
-            if form.is_valid():
-
-                print(form.errors)
-                print("valide")
-
-                passager = Passager(nom=form.cleaned_data['nom'],
-                                    prenom=form.cleaned_data['prenom'],
-                                    adresse_mail=form.cleaned_data['adresse_mail'],
-                                    numero_telephone=form.cleaned_data['numero_telephone'], )
-                passager.save()
-                print('in save')
-
-                reservation = Reservation(
-                    passager=passager,
-                    trajet=trajet,
-                    methodePaiement=form.cleaned_data['methode_paiement'],
-                    nombre_passagers=1,
-                )
-                # Enregistrez l'instance dans la base de données
-                reservation.save()
-                print('in save totale')
-
-                numero_reservation = str(reservation.id)
-                # Créez le code-barres avec le numéro de réservation
-                code = Code128(numero_reservation, writer=ImageWriter())
-                nom_fichier = f'Barcode/{numero_reservation}'
-
-                # Assurez-vous que le dossier 'Barcode' existe (créez-le s'il n'existe pas)
-                dossier_barcode = os.path.dirname(nom_fichier)
-                os.makedirs(dossier_barcode, exist_ok=True)
-
-                # Enregistrez le code-barres en tant qu'image dans le dossier spécifié
-                code.save(nom_fichier)
-
-                # Générez le numéro de réservation (à remplacer par le vrai numéro)
-                numero_reservation = str(reservation.id)
-
-                # Créez le code-barres avec le numéro de réservation
-                code = code128.Code128(numero_reservation)
-
-                # Définissez le chemin du fichier PDF
-                pdf_file_path = f'PDFs/ticket_{numero_reservation}.pdf'
-
-                # Créez un document PDF
-                doc = SimpleDocTemplate(pdf_file_path, pagesize=letter)
-
-                # Créez une liste d'éléments pour le PDF
-                elements = []
-
-                # Ajoutez le titre du ticket
-                title_style = ParagraphStyle(name='TitleStyle', fontSize=20, alignment=1)
-                title = Paragraph("Ticket de Réservation", title_style)
-                elements.append(title)
-
-                # Ajoutez un espace entre le titre et les détails
-                elements.append(Spacer(1, 24))
-
-                # Ajoutez les détails de réservation
-                details_style = ParagraphStyle(name='DetailsStyle', fontSize=12, textColor=colors.black)
-                details_reservation = [
-                    f"<b>Numéro de réservation :</b> {numero_reservation}",
-                    f"<b>Nom :</b> {reservation.passager.nom}",
-                    f"<b>Prénom :</b> {reservation.passager.prenom}",
-                    f"<b>Adresse e-mail :</b> {reservation.passager.adresse_mail}",
-                    f"<b>Numéro de téléphone :</b> {reservation.passager.numero_telephone}",
-                    f"<b>Lieu de départ :</b> {reservation.trajet.lieu_depart}",
-                    f"<b>Lieu d'arrivée :</b> {reservation.trajet.lieu_arrivee}",
-                    f"<b>Date de départ :</b> {reservation.trajet.date_depart}",
-                    f"<b>Date d'arrivée :</b> {reservation.trajet.date_arrivee}",
-                    f"<b>Date de réservation :</b> {reservation.date_reservation}",
-                    f"<b>Prix :</b> {reservation.trajet.prix} DA",
-                ]
-
-                for detail in details_reservation:
-                    detail_paragraph = Paragraph(detail, details_style)
-                    elements.append(detail_paragraph)
-
-                # Ajoutez un espace entre les détails et le code-barres
-                elements.append(Spacer(1, 24))
-
-                # Ajoutez le code-barres au PDF
-                code = code128.Code128(numero_reservation)
-                code.barHeight = 100  # Hauteur du code-barres (ajustez selon vos besoins)
-                code.humanReadable = True  # Rendre le code-barres lisible par l'homme
-                elements.append(code)
-
-                # Construisez le PDF en ajoutant les éléments
-                doc.build(elements)
-
-                # Associez le chemin du fichier PDF à la réservation
-                reservation.ticket = pdf_file_path
-                reservation.save()
-                with open(pdf_file_path, 'rb') as pdf_file:
-                    reservation.ticket.save(f'ticket_{numero_reservation}.pdf', File(pdf_file), save=True)
-        return redirect(checkout_session.url)
-
-
-
-
-from django.views.generic import TemplateView
-
-class SuccessView(TemplateView):
-    template_name = "success.html"
-
-class CancelView(TemplateView):
-    template_name = "Cancel.html"
-
-
-stripe.api_key = settings.STRIPE_SECRET_KEY
-from django.core.mail import send_mail # Add this
-from .models import PaymentHistory # Add this
-
-@method_decorator(csrf_exempt, name="dispatch")
-class StripeWebhookView(View):
-
-    def post(self, request, format=None,):
-        payload = request.body
-        endpoint_secret = settings.STRIPE_WEBHOOK_SECRET
-        sig_header = request.META["HTTP_STRIPE_SIGNATURE"]
-        event = None
-
-        try:
-            event = stripe.Webhook.construct_event(payload, sig_header, endpoint_secret)
-        except ValueError as e:
-            # Invalid payload
-            return HttpResponse(status=400)
-        except stripe.error.SignatureVerificationError as e:
-            # Invalid signature
-            return HttpResponse(status=400)
-
-
-        if event["type"] == "checkout.session.completed":
-            print("Payment successful")
-            # Add this
-            session = event["data"]["object"]
-            customer_email = session["customer_details"]["email"]
-            trajet_id = session["metadata"]["trajet_id"]
-            trajet = get_object_or_404(Trajet, id=trajet_id)
-
-            send_mail(
-                subject=f"Votre Nouvelle Réservation :{trajet.id}",
-                message=f"Votre réservation est confirmée , Merci d’avoir choisi de voyager avec nous ! Vous trouverez ci-dessous un bref aperçu de votre/vos prochain(s) trajet(s) :{trajet.lieu_depart} à {trajet.lieu_arrivee}",
-                recipient_list=[customer_email],
-                from_email="m.ryaddaod21@gmail.com",
-            )
-
-            PaymentHistory.objects.create(
-                email=customer_email, trajet=trajet, payment_status="completed"
-            )
-
-            # Add this
-        # Can handle other events here.
-
+            reservation_id = reservation.id
+            context={'reservation_id':reservation_id}
         return HttpResponse(status=200)
 
