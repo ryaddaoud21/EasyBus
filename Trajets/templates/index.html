@@ -56,19 +56,27 @@
                             <div class="form-group">
                                 <label for="departureCity">Ville de départ</label>
                                 <select class="form-control" id="departureCity" name="departureCity">
-                                    {% for city, city_name in VILLES_CHOICES %}
-                                        <option value="{{ city }}">{{ city_name }}</option>
-                                    {% endfor %}
+                                       {% for city, city_name in VILLES_CHOICES %}
+                                            {% if city == "Oran" %} {# Remplacez DEFAULT_DEPARTURE_CITY par la valeur souhaitée #}
+                                                <option value="{{ city }}" selected>{{ city_name }}</option>
+                                            {% else %}
+                                                <option value="{{ city }}">{{ city_name }}</option>
+                                            {% endif %}
+                                        {% endfor %}
                                 </select>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="arrivalCity">Ville d'arrivée</label>
-                                <select class="form-control" id="arrivalCity" name="arrivalCity">
+                                <select class="form-control" id="arrivalCity" name="arrivalCity" >
                                     {% for city, city_name in VILLES_CHOICES %}
+                                    {% if city == "Alger" %} {# Remplacez DEFAULT_ARRIVAL_CITY par la valeur souhaitée #}
+                                        <option value="{{ city }}" selected>{{ city_name }}</option>
+                                    {% else %}
                                         <option value="{{ city }}">{{ city_name }}</option>
-                                    {% endfor %}
+                                    {% endif %}
+                                {% endfor %}
                                 </select>
                             </div>
                         </div>

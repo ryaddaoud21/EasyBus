@@ -68,6 +68,22 @@ BACKEND_DOMAIN = "http://127.0.0.1:8000"
 PAYMENT_SUCCESS_URL = "http://127.0.0.1:8000/success/"
 PAYMENT_CANCEL_URL = "http://127.0.0.1:8000/cancel/"
 
+import environ
+
+env = environ.Env()
+environ.Env.read_env()
+
+# Previous settings ...
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = env('EMAIL_HOST')
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = env('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')
+
+
+
+
 
 TEMPLATES = [
     {

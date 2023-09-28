@@ -137,11 +137,11 @@ def details_trajet(request, trajet_id):
                 line_items=[
                     {
                         "price_data": {
-                            "currency": "usd",
-                            "unit_amount": int(trajet.prix),
+                            "currency": "dzd",
+                            "unit_amount": int(trajet.prix)*100,
                             "product_data": {
-                                "name": trajet.lieu_depart,
-                                "description": trajet.lieu_arrivee },
+                                "name": f"Payment de votre trajet de {trajet.lieu_depart} à {trajet.lieu_arrivee}",
+                                },
 
                         },
                         "quantity": 1,
@@ -244,8 +244,6 @@ class CreateStripeCheckoutSessionView(View):
 from django.views.generic import TemplateView
 
 
-class SuccessView(TemplateView):
-    template_name = "success.html"
 
 
 
@@ -253,13 +251,16 @@ class SuccessView(TemplateView):
 class CancelView(TemplateView):
     template_name = "Cancel.html"
 
-
+from django.core.mail import EmailMessage
 stripe.api_key = settings.STRIPE_SECRET_KEY
 from django.core.mail import send_mail # Add this
 from .models import PaymentHistory # Add this
 stripe.api_key = settings.STRIPE_SECRET_KEY
 from django.core.cache import cache
 from django.contrib.sessions.models import Session
+import  qrcode
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Image
+
 
 @method_decorator(csrf_exempt, name="dispatch")
 class StripeWebhookView(View):
@@ -312,12 +313,7 @@ class StripeWebhookView(View):
             print(reservation)
 
 
-            send_mail(
-                subject=f"Votre Nouvelle Réservation :{trajet.id}",
-                message=f"Votre réservation est confirmée , Merci d’avoir choisi de voyager avec nous ! Vous trouverez ci-dessous un bref aperçu de votre/vos prochain(s) trajet(s) :{trajet.lieu_depart} à {trajet.lieu_arrivee}",
-                recipient_list=[customer_email],
-                from_email="m.ryaddaod21@gmail.com",
-            )
+
 
             PaymentHistory.objects.create(
                 email=customer_email, trajet=trajet, payment_status="completed"
@@ -334,14 +330,15 @@ class StripeWebhookView(View):
             # Enregistrez le code-barres en tant qu'image dans le dossier spécifié
             code.save(nom_fichier)
 
+
+
             # Générez le numéro de réservation (à remplacer par le vrai numéro)
             numero_reservation = str(reservation.id)
 
-            # Créez le code-barres avec le numéro de réservation
-            code = code128.Code128(numero_reservation)
 
             # Définissez le chemin du fichier PDF
             pdf_file_path = f'PDFs/ticket_{numero_reservation}.pdf'
+
 
             # Créez un document PDF
             doc = SimpleDocTemplate(pdf_file_path, pagesize=letter)
@@ -377,14 +374,28 @@ class StripeWebhookView(View):
                 detail_paragraph = Paragraph(detail, details_style)
                 elements.append(detail_paragraph)
 
-            # Ajoutez un espace entre les détails et le code-barres
-            elements.append(Spacer(1, 24))
+            qr = qrcode.QRCode(
+                version=1,
+                error_correction=qrcode.constants.ERROR_CORRECT_L,
+                box_size=10,
+                border=4,
+            )
+            qr.add_data(numero_reservation)
+            qr.make(fit=True)
 
-            # Ajoutez le code-barres au PDF
-            code = code128.Code128(numero_reservation)
-            code.barHeight = 100  # Hauteur du code-barres (ajustez selon vos besoins)
-            code.humanReadable = True  # Rendre le code-barres lisible par l'homme
-            elements.append(code)
+            # Créez une image à partir du code QR généré
+            qr_image = qr.make_image(fill_color="black", back_color="white")
+            qr_image_file = f'QRCode/qrcode_{numero_reservation}.png'
+            qr_image.save(qr_image_file)
+            qr_directory = 'QRCode/'
+
+            qr_file_path = os.path.join(qr_directory, f'qrcode_{numero_reservation}.png')
+            qr_image.save(qr_file_path)
+
+            # ...
+
+            # Ajoutez l'image du code QR au PDF
+            elements.append(Image(qr_image_file, width=100, height=100))
 
             # Construisez le PDF en ajoutant les éléments
             doc.build(elements)
@@ -393,12 +404,37 @@ class StripeWebhookView(View):
             reservation.ticket = pdf_file_path
             reservation.save()
 
+            reservation_id =reservation.id
+
+            numero_reservation = str(reservation.id)
 
 
 
             with open(pdf_file_path, 'rb') as pdf_file:
                 reservation.ticket.save(f'ticket_{numero_reservation}.pdf', File(pdf_file), save=True)
             reservation_id = reservation.id
-            context={'reservation_id':reservation_id}
+            # Redirigez l'utilisateur vers la page de succès
+
+            email = EmailMessage(
+                subject=f"Votre Nouvelle Réservation :{reservation_id}",
+                body=f"Votre réservation est confirmée , Merci d’avoir choisi de voyager avec nous ! Vous trouverez ci-dessous un bref aperçu de votre/vos prochain(s) trajet(s) :{trajet.lieu_depart} à {trajet.lieu_arrivee}",
+                from_email="m.ryaddaod21@gmail.com",
+                to=[customer_email],
+            )
+
+            # Joignez le fichier PDF en tant que pièce jointe
+            email.attach_file(pdf_file_path, 'application/pdf')
+
+            # Envoyez l'e-mail
+            email.send()
+
         return HttpResponse(status=200)
+
+
+def Success(request):
+
+
+
+    # Renvoyez une réponse HTTP avec le contenu HTML rendu à partir du modèle
+    return render(request, 'success.html')
 

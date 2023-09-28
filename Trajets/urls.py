@@ -15,7 +15,7 @@ urlpatterns = [
     path('trajets/<int:trajet_id>/', details_trajet, name='details_trajet'),
     path('reservation/<int:reservation_id>/', details_reservation, name='details_reservation'),
     path( "checkout/<int:trajet_id>/", CreateStripeCheckoutSessionView.as_view(),  name="checkout" ),
-    path("success/", SuccessView.as_view(), name="success"),
+    path("success/", Success, name="success"),
     path("cancel/", CancelView.as_view(), name="cancel"),
     path("webhooks/stripe/", StripeWebhookView.as_view(), name="stripe-webhook"),
 
