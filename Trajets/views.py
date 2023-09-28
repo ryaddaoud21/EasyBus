@@ -40,12 +40,16 @@ def trajets(request):
 
     if trajet_filter.is_valid():
         date_min = trajet_filter.cleaned_data.get('date_min')
+        ville_depart = trajet_filter.cleaned_data.get('departureCity')
+        ville_arrivee = trajet_filter.cleaned_data.get('arrivalCity')
 
-        if date_min:
-            trajets = trajets.filter(date_depart__gte=date_min)
+
+        if date_min and ville_depart and ville_arrivee:
+            trajets = trajets.filter(date_depart__gte=date_min,lieu_depart=ville_depart,lieu_arrivee=ville_arrivee)
+            print('hello')
 
 
-    context = {'trajets': trajets, 'trajet_filter': trajet_filter}
+    context = {'trajets': trajets, 'trajet_filter': trajet_filter, 'VILLES_CHOICES': VILLES_CHOICES}
     return render(request, 'trajet.html', context)
 
 
@@ -428,13 +432,19 @@ class StripeWebhookView(View):
             # Envoyez l'e-mail
             email.send()
 
+
+
+
         return HttpResponse(status=200)
 
 
 def Success(request):
-
-
+    try:
+        latest_reservation = Reservation.objects.latest('id')
+    except Reservation.DoesNotExist:
+        latest_reservation = None
+    print(latest_reservation)
 
     # Renvoyez une réponse HTTP avec le contenu HTML rendu à partir du modèle
-    return render(request, 'success.html')
+    return render(request, 'success.html',{'reservation': latest_reservation})
 

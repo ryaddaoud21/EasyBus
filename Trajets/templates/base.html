@@ -24,18 +24,16 @@
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ml-auto">
-                <li class="nav-item active">
+                <li class="nav-item {% if request.path == '/' %}active{% endif %}">
                     <a class="nav-link" href="{% url 'index' %}">Accueil</a>
                 </li>
-                 <li class="nav-item">
+                <li class="nav-item {% if request.path == '/reservation/' %}active{% endif %}">
                     <a class="nav-link" href="{% url 'reservation' %}">Gérer une réservation</a>
                 </li>
-                <li class="nav-item">
+                <li class="nav-item {% if request.path == '/trajets/' %}active{% endif %}">
                     <a class="nav-link" href="{% url 'liste_trajets' %}">Trajets</a>
                 </li>
-
-
-                <li class="nav-item">
+                <li class="nav-item {% if request.path == '/Apropos/' %}active{% endif %}">
                     <a class="nav-link" href="{% url 'Apropos' %}">Destination</a>
                 </li>
             </ul>
@@ -45,7 +43,7 @@
     {% block content %}{% endblock %}
 
     <!-- Footer -->
-    <footer class="bg-light text-center py-3 " style="    margin-top: 50px;">
+    <footer class="bg-light text-center py-3 " style="    margin-top: 100px;">
         <p>&copy; 2023 EasyBus </p>
     </footer>
 

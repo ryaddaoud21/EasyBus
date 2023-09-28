@@ -9,8 +9,12 @@ class ChercherTrajet(forms.Form):
     departureCity = forms.ChoiceField(choices=VILLES_CHOICES, required=False)
     arrivalCity = forms.ChoiceField(choices=VILLES_CHOICES, required=False)
 
+from .models import VILLES_CHOICES
 class TrajetFilterForm(forms.Form):
     date_min = forms.DateField(label="Date minimale", required=False, widget=forms.DateInput(attrs={'type': 'date'}))
+    departureCity = forms.ChoiceField(choices=VILLES_CHOICES, required=False)
+    arrivalCity = forms.ChoiceField(choices=VILLES_CHOICES, required=False)
+
 
 
 from django import forms

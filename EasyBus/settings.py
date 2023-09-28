@@ -38,6 +38,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'Trajets',
+
+
 ]
 
 MIDDLEWARE = [
@@ -53,12 +55,14 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'EasyBus.urls'
 
-# config/settings.py
+# à remplir !
 
 STRIPE_PUBLIC_KEY = ''
 STRIPE_SECRET_KEY = ''
-
 STRIPE_WEBHOOK_SECRET=''
+
+
+
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"

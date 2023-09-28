@@ -23,24 +23,39 @@
     {% for trajet in trajets %}
 <div class="row mb-4">
     <div class="col-md-12">
-        <div class="card">
+        <div class="card custom-card">
             <div class="card-header">
                 <div class="float-left">
-                     <i class="fas fa-wifi"></i> <!-- Icône Wi-Fi -->
-                    <i class="fas fa-bus"></i> <!-- Icône Bus -->
-                    <i class="fas fa-charging-station"></i> <!-- Icône Chargeur -->
+                    <i class="fas fa-wifi" style="font-size: 18px; margin-right: 10px;"></i> <!-- Icône Wi-Fi -->
+                    <i class="fas fa-bus" style="font-size: 18px; margin-right: 10px;"></i> <!-- Icône Chargeur -->
+                    <i class="fas fa-charging-station" style="font-size: 18px;"></i> <!-- Icône Chargeur -->
                 </div>
                 <div class="float-right">
+                    <i class='fas fa-tag' style='font-size:18px,color:#17a2b8'></i>
+
                     <b>Prix : {{ trajet.prix }} DA</b>
                 </div>
                 <div class="clearfix"></div>
             </div>
             <div class="card-body">
-                <div class="float-left">
-                    <h5 class="card-title">Trajet de {{ trajet.lieu_depart }} à {{ trajet.lieu_arrivee }}</h5>
-                    <p class="card-text">Date de départ : {{ trajet.date_depart }}</p>
-                    <p class="card-text">Date d'arrivée : {{ trajet.date_arrivee }}</p>
-                    <p class="card-text">Durée de trajet : <b>{{ trajet.duree_formattee }}</b></p>
+                <div class="float-left"style="display: inline-block; text-align: left;   padding-right: 20pc;" >
+
+                    <p class="card-text date">
+                        <i class="far fa-calendar" style="margin-right: 15px; font-size: 18px;color: #17a2b8;"></i>
+                        {{ trajet.date_depart|date:"Y-m-d" }}
+                    </p>
+                    <p class="card-text duration">
+                        <i class="far fa-clock" style="margin-right: 15px; font-size: 18px;color: #17a2b8;"></i>
+                        Durée : {{ trajet.duree_formattee }}
+                    </p>
+
+                    <p> <i class="far fa-circle"style="margin-right: 15px; color:#17a2b8 "></i>{{ trajet.date_depart|date:"H:i" }} De : <b>{{ trajet.lieu_depart }} </b>  </p>
+                     <p style="    color: #17a2b8;margin: -27px 0px 4px 6px; ">|</p>
+                     <p style="    color: #17a2b8;margin: -14px 0px -10px 6px; ">|</p>
+                     <p style="    color: #17a2b8;margin: 0px 0px -10px 6px; ">|</p>
+
+                    <p><i class="far fa-circle align-middle" style="margin-right: 15px;color:#17a2b8" ></i>{{ trajet.date_arrivee|date:"H:i" }}  À : <b>{{ trajet.lieu_arrivee }}</b>  </p>
+
 
                 </div>
                 <div class="float-right bottom-right">
@@ -68,10 +83,28 @@
 </div>
 <style>
 
+.input-select-container {
+    margin-right: -20px; /* Ajoutez la marge souhaitée ici */
+}
 .bottom-right {
     position: absolute;
-    bottom: 15px; /* Ajustez la valeur en fonction de la position verticale souhaitée */
+    bottom: 20px; /* Ajustez la valeur en fonction de la position verticale souhaitée */
     right: 10px; /* Ajustez la valeur en fonction de la position horizontale souhaitée */
 }
+.card-text.date,
+.card-text.duration {
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: 20px; /* Ajustez la marge selon vos préférences */
+}
+.large-label {
+    font-size: 18px; /* Définissez la taille de police souhaitée pour les labels */
+    margin: 5px 5px 5px 20px;
+
+}
+.custom-card {
+    width: 100%;
+    height: 90%;
+    }
 </style>
 {% endblock %}

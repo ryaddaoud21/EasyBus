@@ -86,7 +86,7 @@
                 </div>
         </div>
                 <div class="card-footer text-center">
-                    <button type="submit"  class="btn btn-info">Valider</button>
+                    <button type="submit"  class="btn btn-info">Passer au Payment</button>
                 </div>
                 </form>
         </div>
@@ -94,17 +94,17 @@
 
         <!-- Colonne de droite pour la carte de l'itinéraire -->
         <div class="col-md-6">
-            <div class="card">
-                   <div class="card-header">
-                    <h5 class="card-title">Détails du trajet</h5>
-                    <div class="chrono">
-                        <b><span id="chrono"></span> </b>
-                    </div>
-                    <hr class="vertical-line">
+         <div class="card-header d-flex justify-content-between">
+        <h5 class="card-title">Détails du trajet</h5>
+        <div class="chrono">
+            <b><i class="fas fa-stopwatch" style="margin-right: 10px;"></i> <span id="chrono"></span></b>
+        </div>
+    </div>
+         <div class="card-body">
 
-                    <p><i class="fas fa-map-marker-alt align-middle" style=" margin-top: -5px;"></i> <b>{{ trajet.lieu_depart }}</b> : Date de départ : {{ trajet.date_depart }}</p>
+                    <p><i class="fas fa-map-pin align-middle" style=" margin-top: -5px;"></i> <b>Depart :</b>  {{ trajet.lieu_depart }}  <b> Date</b>  : {{ trajet.date_depart }}</p>
                     <hr class="vertical-line">
-                    <p><i class="fas fa-map-marker-alt align-middle" style=" margin-top: -5px;" ></i> <b>{{ trajet.lieu_arrivee }}</b> : Date d'arrivée : {{ trajet.date_arrivee }}</p>
+                    <p><i class="fas fa-map-pin align-middle" style=" margin-top: -5px;" ></i> <b>Arrivee :</b> {{ trajet.lieu_arrivee }} <b>  Date</b>  : {{ trajet.date_arrivee }}</p>
                     <hr class="vertical-line">
 
                     <p><b>Prix : {{ trajet.prix }} DA</b></p>
@@ -118,7 +118,7 @@
                 </div>
                 <div class="card-footer">
                     <h5 class="card-title">Carte de l'itinéraire</h5>
-                    <div id="map" style="height: 360px;"
+                    <div id="map" style="height: 380px;"
                      data-latitude-depart="{{ latitude_depart }}"
                      data-longitude-depart="{{ longitude_depart }}"
                      data-latitude-arrivee="{{ latitude_arrivee }}"
