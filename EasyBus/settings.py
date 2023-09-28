@@ -55,7 +55,7 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'EasyBus.urls'
 
-# à remplir !
+# config/settings.py
 
 STRIPE_PUBLIC_KEY = ''
 STRIPE_SECRET_KEY = ''
