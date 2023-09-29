@@ -114,10 +114,15 @@ WSGI_APPLICATION = 'EasyBus.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'EASYBUS_TEST',
+        'USER': 'postgres',
+        'PASSWORD': '180175',
+        'HOST': 'localhost',  # Adresse de la base de données (peut être différente)
+        'PORT': '5432',       # Port de la base de données (par défaut pour PostgreSQL)
     }
 }
+
 
 
 # Password validation
