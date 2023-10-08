@@ -1,0 +1,237 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-5" xmlns="http://www.w3.org/1999/html">
+    <div class="row">
+        <!-- Colonne de gauche pour les informations du passager, les sièges et la méthode de paiement -->
+        <div class="col-md-6">
+            <div class="card">
+                <form method="POST" action="{% url 'details_trajet' trajet.id %}">
+                {% csrf_token %}
+                <div class="card-body">
+                    <h5 class="card-title">Informations du passager</h5>
+                    <div class="form-row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="{{ form.nom.id_for_label }}">Nom</label>
+                                <input type="text" class="form-control" id="{{ form.nom.id_for_label }}" name="nom" placeholder="Nom">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="{{ form.prenom.id_for_label }}">Prénom</label>
+                                <input type="text" class="form-control" id="{{ form.prenom.id_for_label }}" name="prenom" placeholder="Prénom">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="{{ form.adresse_mail.id_for_label }}">Email</label>
+                        <input type="email" class="form-control" id="{{ form.adresse_mail.id_for_label }}" name="adresse_mail" placeholder="Email">
+                    </div>
+                    <div class="form-group">
+                        <label for="{{ form.numero_telephone.id_for_label }}">Téléphone</label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">+33</span> <!-- Indicateur de pays -->
+                            </div>
+                            <input type="text" class="form-control" id="{{ form.numero_telephone.id_for_label }}" name="numero_telephone" placeholder="Numéro de téléphone">
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <h5 class="card-title">Choix du siège</h5>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" checked name="choixSiege" id="choixSiege1" value="choisir">
+                            <label class="form-check-label" for="choixSiege1">
+                                Choisir un siège
+                            </label>
+                        </div>
+
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="choixSiege" id="choixSiege2" value="aleatoire">
+                            <label class="form-check-label" for="choixSiege2">
+                                Siège Aléatoire
+                            </label>
+                        </div>
+                    </div>
+                <div class="card-footer">
+                <h5 class="card-title">Méthode de paiement</h5>
+                <br>
+                    <!-- Méthode de paiement par carte de crédit -->
+                <div class="form-check mb-4">
+                        <input class="form-check-input" type="radio" checked name="methode_paiement" id="carte_credit" value="carte_credit">
+                        <label class="form-check-label d-flex align-items-center" for="carte_credit">
+                            <img src="{% static 'Trajets/images/carte_credit_logo.png' %}" alt="carte_credit" class="mr-2" width="40">
+                        Carte de crédit
+                    </label>
+                </div>
+
+                <!-- Méthode de paiement Google Pay -->
+                <div class="form-check mb-4">
+                    <input class="form-check-input" type="radio" name="methode_paiement" id="paypal" value="googlePay">
+                    <label class="form-check-label d-flex align-items-center" for="paypal">
+                        <img src="{% static 'Trajets/images/google_pay_logo.png' %}" alt="Google Pay" class="mr-2" width="31">
+                        PayPal
+                    </label>
+                </div>
+
+                <!-- Méthode de paiement PayPal -->
+                <div class="form-check mb-3">
+                    <input class="form-check-input" type="radio" name="methode_paiement" id="virement" value="virement">
+                    <label class="form-check-label d-flex align-items-center" for="virement">
+                        <img src="{% static 'Trajets/images/paypal_logo.png' %}" alt="virement" class="mr-2" width="40">
+                        Virement
+                    </label>
+                </div>
+        </div>
+                <div class="card-footer text-center">
+                    <button type="submit"  class="btn btn-info">Passer au Payment</button>
+                </div>
+                </form>
+        </div>
+        </div>
+
+        <!-- Colonne de droite pour la carte de l'itinéraire -->
+        <div class="col-md-6">
+         <div class="card-header d-flex justify-content-between">
+        <h5 class="card-title">Détails du trajet</h5>
+        <div class="chrono">
+            <b><i class="fas fa-stopwatch" style="margin-right: 10px;"></i> <span id="chrono"></span></b>
+        </div>
+    </div>
+         <div class="card-body">
+
+                    <p><i class="fas fa-map-pin align-middle" style=" margin-top: -5px;"></i> <b>Depart :</b>  {{ trajet.lieu_depart }}  <b> Date</b>  : {{ trajet.date_depart }}</p>
+                    <hr class="vertical-line">
+                    <p><i class="fas fa-map-pin align-middle" style=" margin-top: -5px;" ></i> <b>Arrivee :</b> {{ trajet.lieu_arrivee }} <b>  Date</b>  : {{ trajet.date_arrivee }}</p>
+                    <hr class="vertical-line">
+
+                    <p><b>Prix : {{ trajet.prix }} DA</b></p>
+
+                     </div>
+
+
+
+                <div class="card-body">
+                    <!-- Ajoutez ici les informations spécifiques au trajet telles que la ville de départ, la ville d'arrivée, les dates, etc. -->
+                </div>
+                <div class="card-footer">
+                    <h5 class="card-title">Carte de l'itinéraire</h5>
+                    <div id="map" style="height: 380px;"
+                     data-latitude-depart="{{ latitude_depart }}"
+                     data-longitude-depart="{{ longitude_depart }}"
+                     data-latitude-arrivee="{{ latitude_arrivee }}"
+                     data-longitude-arrivee="{{ longitude_arrivee }}">
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+
+
+<script>
+
+
+    // Coordonnées GPS d'Alger et Oran
+        var mapElement = document.getElementById('map');
+        var latitudeDepart = parseFloat(mapElement.dataset.latitudeDepart);
+        var longitudeDepart = parseFloat(mapElement.dataset.longitudeDepart);
+        var latitudeArrivee = parseFloat(mapElement.dataset.latitudeArrivee);
+        var longitudeArrivee = parseFloat(mapElement.dataset.longitudeArrivee);
+
+
+        // Créez une carte Leaflet centrée sur ville depart
+        var map = L.map('map').setView([latitudeDepart,longitudeDepart], 7); // Ajustez le niveau de zoom selon vos besoins
+
+        // Ajoutez une couche de tuiles (carte de base)
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+        }).addTo(map);
+
+        // Créez des marqueurs pour les villes de départ et d'arrivée
+        var markerAlger = L.marker([latitudeDepart,longitudeDepart]).addTo(map);
+        var markerOran = L.marker([latitudeArrivee,longitudeArrivee]).addTo(map);
+
+        // Créez un itinéraire entre Alger et Oran
+        var route = L.polyline([[latitudeDepart,longitudeDepart], [latitudeArrivee,longitudeArrivee]], { color: 'red' }).addTo(map);
+
+        // Ajoutez des popups aux marqueurs
+        markerAlger.bindPopup('Depart');
+        markerOran.bindPopup('Arrivee');
+
+        // Ajoutez un popup à l'itinéraire
+        route.bindPopup('Itinéraire de depart à arrivee');
+
+        // Ajustez la vue pour afficher les deux marqueurs
+        map.fitBounds([[latitudeDepart,longitudeDepart], [latitudeArrivee,longitudeArrivee]]);
+
+
+        // Fonction pour rediriger vers la page d'accueil après 2 minutes
+        function redirectToHomePage() {
+            window.location.href = "{% url 'index' %}"; // Remplacez 'accueil' par l'URL réelle de votre page d'accueil
+        }
+
+        // Démarrez la minuterie de 2 minutes lors du chargement de la page
+        var timer = setTimeout(redirectToHomePage, 120000); // 120000 millisecondes = 2 minutes
+
+        // Réinitialisez la minuterie si l'utilisateur interagit avec la page
+        window.addEventListener("mousemove", resetTimer);
+        window.addEventListener("keydown", resetTimer);
+
+        function resetTimer() {
+            clearTimeout(timer);
+            timer = setTimeout(redirectToHomePage, 120000); // Réinitialisez la minuterie
+        }
+        var countdown; // Variable pour stocker l'intervalle du chronomètre
+
+        // Fonction pour démarrer le chronomètre
+        function startCountdown(duration, display) {
+            var timer = duration, minutes, seconds;
+            countdown = setInterval(function () {
+                minutes = parseInt(timer / 60, 10);
+                seconds = parseInt(timer % 60, 10);
+
+                minutes = minutes < 10 ? "0" + minutes : minutes;
+                seconds = seconds < 10 ? "0" + seconds : seconds;
+
+                display.textContent = minutes + ":" + seconds;
+
+                if (--timer < 0) {
+                    clearInterval(countdown); // Arrêtez le chronomètre lorsque le temps est écoulé
+                    // Vous pouvez ajouter une action à effectuer ici, par exemple une redirection
+                    // window.location.href = "{% url 'index' %}"; // Redirection vers la page d'accueil
+                }
+            }, 1000); // Met à jour le chronomètre chaque seconde (1000 ms)
+        }
+
+        // Démarrez le chronomètre lorsque la page est chargée
+        window.onload = function () {
+            var twoMinutes = 120, // Durée du chronomètre en secondes (2 minutes)
+                display = document.getElementById("chrono"); // Élément où afficher le chronomètre
+            startCountdown(twoMinutes, display);
+        };
+
+
+</script>
+
+
+
+
+
+
+
+
+
+<style>
+    .custom-checkbox .custom-control-input:checked ~ .custom-control-label::before {
+    width: 6.5rem; /* Largeur souhaitée */
+    height: 6.5rem; /* Hauteur souhaitée */
+}
+</style>
+{% endblock %}

@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-5">
+    <!-- Colonne de date -->
+<div class="row mb-4">
+    <div class="col-md-6 offset-md-3 text-center">
+        <div class="date-box text-dark">
+            <h3>Liste des trajets disponibles</h3>
+        </div>
+        <form method="get" action="{% url 'liste_trajets' %}" class="mt-3">
+            <div class="form-group d-flex">
+                <input type="date" class="form-control" id="{{ trajet_filter.date_min.id_for_label }}"
+                       name="{{ trajet_filter.date_min.name }}" value="{{ trajet_filter.date_min.value }}">
+                <button type="submit" class="btn btn-info ml-2">Chercher</button>
+            </div>
+        </form>
+    </div>
+</div>
+    <!-- Liste des trajets -->
+    {% if trajets %}
+    {% for trajet in trajets %}
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card custom-card">
+            <div class="card-header">
+                <div class="float-left">
+                    <i class="fas fa-wifi" style="font-size: 18px; margin-right: 10px;"></i> <!-- Icône Wi-Fi -->
+                    <i class="fas fa-bus" style="font-size: 18px; margin-right: 10px;"></i> <!-- Icône Chargeur -->
+                    <i class="fas fa-charging-station" style="font-size: 18px;"></i> <!-- Icône Chargeur -->
+                </div>
+                <div class="float-right">
+                    <i class='fas fa-tag' style='font-size:18px,color:#17a2b8'></i>
+
+                    <b>Prix : {{ trajet.prix }} DA</b>
+                </div>
+                <div class="clearfix"></div>
+            </div>
+            <div class="card-body">
+                <div class="float-left"style="display: inline-block; text-align: left;   padding-right: 20pc;" >
+
+                    <p class="card-text date">
+                        <i class="far fa-calendar" style="margin-right: 15px; font-size: 18px;color: #17a2b8;"></i>
+                        {{ trajet.date_depart|date:"Y-m-d" }}
+                    </p>
+                    <p class="card-text duration">
+                        <i class="far fa-clock" style="margin-right: 15px; font-size: 18px;color: #17a2b8;"></i>
+                        Durée : {{ trajet.duree_formattee }}
+                    </p>
+
+                    <p> <i class="far fa-circle"style="margin-right: 15px; color:#17a2b8 "></i>{{ trajet.date_depart|date:"H:i" }} De : <b>{{ trajet.lieu_depart }} </b>  </p>
+                     <p style="    color: #17a2b8;margin: -27px 0px 4px 6px; ">|</p>
+                     <p style="    color: #17a2b8;margin: -14px 0px -10px 6px; ">|</p>
+                     <p style="    color: #17a2b8;margin: 0px 0px -10px 6px; ">|</p>
+
+                    <p><i class="far fa-circle align-middle" style="margin-right: 15px;color:#17a2b8" ></i>{{ trajet.date_arrivee|date:"H:i" }}  À : <b>{{ trajet.lieu_arrivee }}</b>  </p>
+
+
+                </div>
+                <div class="float-right bottom-right">
+                    <a  href="{% url 'details_trajet' trajet.id %}" class="btn btn-info">Continuer</a>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+    {% endfor %}
+    {% else %}
+    <div class="card-body">
+                <div class="text-center">
+                    <p class="card-text"> Malheureusement ! Pas de trajet disponible dans cette date</p>
+
+                </div>
+
+
+            </div>
+    {% endif %}
+
+</div>
+<style>
+
+.input-select-container {
+    margin-right: -20px; /* Ajoutez la marge souhaitée ici */
+}
+.bottom-right {
+    position: absolute;
+    bottom: 20px; /* Ajustez la valeur en fonction de la position verticale souhaitée */
+    right: 10px; /* Ajustez la valeur en fonction de la position horizontale souhaitée */
+}
+.card-text.date,
+.card-text.duration {
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: 20px; /* Ajustez la marge selon vos préférences */
+}
+.large-label {
+    font-size: 18px; /* Définissez la taille de police souhaitée pour les labels */
+    margin: 5px 5px 5px 20px;
+
+}
+.custom-card {
+    width: 100%;
+    height: 90%;
+    }
+</style>
+{% endblock %}
